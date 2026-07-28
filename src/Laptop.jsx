@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import photo from "./assets/wallpaper.jpg";
 
-import TopBar from "./components/TopBar";
+import Topbar from "./components/Topbar";
 import DynamicIsland from "./components/DynamicIsland";
 import DesktopIcons from "./components/DesktopIcons";
 import Dock from "./components/Dock";
@@ -43,7 +43,7 @@ const containerVariants = {
   },
 };
 
-const topBarVariants = {
+const TopbarVariants = {
   hidden: { opacity: 0, y: -20 },
   visible: { 
     opacity: 1, 
@@ -251,8 +251,8 @@ const Laptop = () => {
 
           {/* Top Bar & Dynamic Island (Locked to top with maximum z-index so windows slide cleanly underneath) */}
           <div className="absolute top-0 inset-x-0 z-[9999] pointer-events-none">
-            <motion.div variants={topBarVariants} className="transform-gpu pointer-events-auto">
-              <TopBar
+            <motion.div variants={TopbarVariants} className="transform-gpu pointer-events-auto">
+              <Topbar
                 onOpenCalculator={() => openApp("calculator")}
                 isWifiActive={isWifiActive}
                 setIsWifiActive={setIsWifiActive}
