@@ -134,14 +134,18 @@ export default function WeatherApp() {
   };
 
   return (
-    /* pt-14 on mobile pushes search and hero text safely below the Dynamic Island, while background fills edge-to-edge. Desktop stays sm:pt-4 */
-    <div className="w-full h-full bg-gradient-to-b from-[#2c5364] via-[#203a43] to-[#0f2027] text-white flex flex-col font-sans select-none overflow-y-auto p-4 pt-14 sm:pt-4 pb-12 sm:pb-4 relative scrollbar-none min-h-screen">
+    /* 
+      Mobile behavior remains unchanged (overflow-y-auto min-h-screen).
+      Laptop / Desktop view (sm: and up) gets restricted height (sm:h-full sm:max-h-screen) 
+      and explicit vertical scrolling (sm:overflow-y-auto).
+    */
+    <div className="w-full h-full bg-gradient-to-b from-[#2c5364] via-[#203a43] to-[#0f2027] text-white flex flex-col font-sans select-none overflow-y-auto sm:overflow-y-auto sm:h-full sm:max-h-screen p-4 pt-14 sm:pt-4 pb-12 sm:pb-6 relative scrollbar-none min-h-screen sm:min-h-0">
       
       {/* Background Soft Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Header Search bar */}
-      <div className="relative z-10 flex items-center justify-between mb-4">
+      <div className="relative z-10 flex items-center justify-between mb-4 shrink-0">
         <form onSubmit={handleSearch} className="relative flex items-center w-48 sm:w-64">
           <input
             type="text"
@@ -168,7 +172,7 @@ export default function WeatherApp() {
       ) : weatherData ? (
         <>
           {/* Main Hero Card */}
-          <div className="relative z-10 flex flex-col items-center justify-center my-2 text-center">
+          <div className="relative z-10 flex flex-col items-center justify-center my-2 text-center shrink-0">
             <span className="text-[11px] uppercase tracking-widest font-semibold opacity-80">
               MY LOCATION
             </span>
@@ -187,7 +191,7 @@ export default function WeatherApp() {
           </div>
 
           {/* Hourly Carousel */}
-          <div className="relative z-10 mt-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-lg">
+          <div className="relative z-10 mt-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-lg shrink-0">
             <p className="text-xs font-medium opacity-90 mb-3 px-1 border-b border-white/10 pb-2">
               Conditions are currently {weatherData.condition.toLowerCase()}. Humidity is at {weatherData.humidity}.
             </p>
@@ -204,7 +208,7 @@ export default function WeatherApp() {
           </div>
 
           {/* Grid Layout Cards (1-column on mobile, 3-column on laptop view) */}
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 shrink-0">
             
             {/* 5-Day Forecast */}
             <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-3 shadow-lg flex flex-col justify-between">
