@@ -41,7 +41,6 @@ export default function DraggableWindow({
   useEffect(() => {
     if (isOpen && !isMinimized) {
       setAnimationState("opening");
-      // Transition smoothly to idle state after open sequence completes
       const timer = setTimeout(() => setAnimationState("idle"), 250);
       return () => clearTimeout(timer);
     }
@@ -76,7 +75,7 @@ export default function DraggableWindow({
   // Full height from topBar down to bottom
   const fullScreenHeight = Math.max(200, viewportHeight - topBarHeight - bottomDockHeight);
 
-  // Framer Motion animation variants for open / idle / close / minimize
+  // Animation variants
   const windowVariants = {
     opening: {
       scale: 0.85,
@@ -185,7 +184,6 @@ export default function DraggableWindow({
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
-          transition: "all 0.2s ease",
         }}
         className="overflow-visible"
       >
@@ -193,7 +191,11 @@ export default function DraggableWindow({
           initial="opening"
           animate={animationState}
           variants={windowVariants}
-          className={`w-full h-full flex flex-col overflow-hidden origin-bottom ${
+          // Crucial fix: strip active CSS transforms when idle so Rnd dragging works smoothly
+          style={{
+            transform: animationState === "idle" ? "none" : undefined,
+          }}
+          className={`w-full h-full flex flex-col overflow-hidden origin-center ${
             isFullScreen ? "rounded-none" : "rounded-2xl"
           } shadow-2xl border ${borderColor} ${bgColor}`}
         >
