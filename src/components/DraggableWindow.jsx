@@ -24,7 +24,7 @@ export default function DraggableWindow({
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [size, setSize] = useState({ width: defaultWidth, height: defaultHeight });
   const [position, setPosition] = useState({ x: defaultX, y: defaultY });
-  const [animationState, setAnimationState] = useState("idle"); // "idle" | "closing" | "minimizing"
+  const [animationState, setAnimationState] = useState("opening"); // "opening" | "idle" | "closing" | "minimizing"
 
   // Track window innerHeight dynamically
   const [viewportHeight, setViewportHeight] = useState(
@@ -36,6 +36,16 @@ export default function DraggableWindow({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Reset to opening state whenever window opens or un-minimizes
+  useEffect(() => {
+    if (isOpen && !isMinimized) {
+      setAnimationState("opening");
+      // Transition smoothly to idle state after open sequence completes
+      const timer = setTimeout(() => setAnimationState("idle"), 250);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isMinimized]);
 
   if (!isOpen || isMinimized) return null;
 
@@ -51,7 +61,6 @@ export default function DraggableWindow({
     setAnimationState("closing");
     setTimeout(() => {
       onClose?.();
-      setAnimationState("idle");
     }, 200);
   };
 
@@ -61,32 +70,43 @@ export default function DraggableWindow({
     setAnimationState("minimizing");
     setTimeout(() => {
       onMinimize?.();
-      setAnimationState("idle");
     }, 250);
   };
 
   // Full height from topBar down to bottom
   const fullScreenHeight = Math.max(200, viewportHeight - topBarHeight - bottomDockHeight);
 
-  // Framer Motion animation variants for macOS window FX
+  // Framer Motion animation variants for open / idle / close / minimize
   const windowVariants = {
+    opening: {
+      scale: 0.85,
+      opacity: 0,
+      y: 30,
+      filter: "blur(4px)",
+    },
     idle: {
       scale: 1,
       opacity: 1,
       y: 0,
       filter: "blur(0px)",
-      transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+      transition: {
+        type: "spring",
+        stiffness: 340,
+        damping: 26,
+        mass: 0.8,
+      },
     },
     closing: {
       scale: 0.92,
       opacity: 0,
+      filter: "blur(2px)",
       transition: { duration: 0.18, ease: "easeOut" },
     },
     minimizing: {
       scale: 0.3,
       opacity: 0,
       y: 250,
-      filter: "blur(4px)",
+      filter: "blur(6px)",
       transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
     },
   };
@@ -167,10 +187,10 @@ export default function DraggableWindow({
           boxSizing: "border-box",
           transition: "all 0.2s ease",
         }}
-        /* Clean outer container: no border, bg, or shadow here */
         className="overflow-visible"
       >
         <motion.div
+          initial="opening"
           animate={animationState}
           variants={windowVariants}
           className={`w-full h-full flex flex-col overflow-hidden origin-bottom ${
