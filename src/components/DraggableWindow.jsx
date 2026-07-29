@@ -18,24 +18,11 @@ export default function DraggableWindow({
   headerColor = "bg-zinc-950/90",
   borderColor = "border-white/15",
   bgColor = "bg-black",
-  topBarHeight = 32,     // Height of macOS top menu bar
-  bottomDockHeight = 0,  // Set to 0 for no bottom space
 }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [size, setSize] = useState({ width: defaultWidth, height: defaultHeight });
   const [position, setPosition] = useState({ x: defaultX, y: defaultY });
   const [animationState, setAnimationState] = useState("opening"); // "opening" | "idle" | "closing" | "minimizing"
-
-  // Track window innerHeight dynamically
-  const [viewportHeight, setViewportHeight] = useState(
-    typeof window !== "undefined" ? window.innerHeight : 800
-  );
-
-  useEffect(() => {
-    const handleResize = () => setViewportHeight(window.innerHeight);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   // Reset to opening state whenever window opens or un-minimizes
   useEffect(() => {
@@ -72,10 +59,7 @@ export default function DraggableWindow({
     }, 250);
   };
 
-  // Full height from topBar down to bottom
-  const fullScreenHeight = Math.max(200, viewportHeight - topBarHeight - bottomDockHeight);
-
-  // Animation variants
+  // Framer Motion animation variants
   const windowVariants = {
     opening: {
       scale: 0.85,
@@ -115,12 +99,12 @@ export default function DraggableWindow({
       <Rnd
         size={
           isFullScreen
-            ? { width: "100%", height: fullScreenHeight }
+            ? { width: "100vw", height: "100vh" }
             : { width: size.width, height: size.height }
         }
         position={
           isFullScreen
-            ? { x: 0, y: topBarHeight }
+            ? { x: 0, y: 0 }
             : { x: position.x, y: position.y }
         }
         disableDragging={isFullScreen}
@@ -180,18 +164,29 @@ export default function DraggableWindow({
               }
         }
         style={{
-          zIndex: zIndex,
+          position: isFullScreen ? "fixed" : "absolute",
+          top: isFullScreen ? 0 : undefined,
+          left: isFullScreen ? 0 : undefined,
+          zIndex: isFullScreen ? 99999 : zIndex,
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
+          // Enables smooth CSS transition on width/height/position changes for Rnd wrapper
+          transition: "width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
         className="overflow-visible"
       >
         <motion.div
+          layout // Enables Framer Motion smooth layout morphing
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+            mass: 0.8,
+          }}
           initial="opening"
           animate={animationState}
           variants={windowVariants}
-          // Crucial fix: strip active CSS transforms when idle so Rnd dragging works smoothly
           style={{
             transform: animationState === "idle" ? "none" : undefined,
           }}
