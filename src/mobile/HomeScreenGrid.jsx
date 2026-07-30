@@ -59,7 +59,7 @@ const DynamicCalendarWidget = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[22px] sm:rounded-[28px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5">
+    <div className="w-full h-full bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[22px] sm:rounded-[28px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 select-none">
       <div className="flex items-center gap-1 text-[16px] sm:text-[21px] font-bold tracking-tight">
         <span className="text-[#FF3B30]">{calendarData.weekday}</span>
         <span className="text-white/80">{calendarData.month}</span>
@@ -168,7 +168,7 @@ const DynamicWeatherWidget = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-[#2C3540]/80 backdrop-blur-2xl rounded-[22px] sm:rounded-[28px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 text-white">
+    <div className="w-full h-full bg-[#2C3540]/80 backdrop-blur-2xl rounded-[22px] sm:rounded-[28px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 text-white select-none">
       <div>
         <div className="text-[11px] sm:text-[13px] font-semibold text-white/90 truncate flex items-center">
           <span className="truncate">{weather.location}</span>
@@ -191,13 +191,12 @@ const DynamicWeatherWidget = () => {
   );
 };
 
-// --- APP GRID DATA ---
+// --- MAIN APP GRID DATA ---
 const APP_GRID = [
   // Row 1
   { 
     id: "calendar", 
     label: "Calendar", 
-    imgSrc: "https://upload.wikimedia.org/wikipedia/commons/a/a2/Apple_Calendar_icon.png" 
   },
   { 
     id: "notes", 
@@ -226,7 +225,6 @@ const APP_GRID = [
     imgSrc: "https://cdn.iconscout.com/icon/free/png-256/free-apple-settings-icon-svg-download-png-493162.png?f=webp", 
     badge: 2 
   },
-  // Row 3
   { 
     id: "maps", 
     label: "Maps", 
@@ -237,6 +235,7 @@ const APP_GRID = [
     label: "Photos", 
     imgSrc: "https://cdn.iconscout.com/icon/free/png-256/free-apple-photos-icon-svg-download-png-493155.png?f=webp" 
   },
+  // Row 3
   { 
     id: "linkedin", 
     label: "LinkedIn", 
@@ -262,18 +261,20 @@ const APP_GRID = [
 
 export default function HomeScreenGrid({ setActiveApp }) {
   return (
-    <div className="relative z-30 w-full h-full overflow-hidden px-4 sm:px-6 pt-2 pb-4 flex flex-col justify-between max-h-screen">
+    /* Changed pb-14 to pb-[40px] (reduced padding slightly) */
+    <div className="relative z-30 w-full h-full overflow-hidden px-4 sm:px-6 pt-1 pb-[40px] flex flex-col justify-start gap-3 max-w-[430px] mx-auto select-none touch-none">
+      
       {/* 1. TOP WIDGETS ROW */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 shrink-0 max-h-[30vh]">
+      <div className="grid grid-cols-2 gap-4 shrink-0 mt-1">
         {/* Dynamic Calendar Widget */}
         <div 
           onClick={() => setActiveApp && setActiveApp("Calendar")}
-          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform h-full"
+          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform"
         >
-          <div className="w-full aspect-square max-h-[150px] max-w-[150px]">
+          <div className="w-full aspect-square max-h-[135px]">
             <DynamicCalendarWidget />
           </div>
-          <span className="text-[10px] sm:text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
+          <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
             Calendar
           </span>
         </div>
@@ -281,27 +282,27 @@ export default function HomeScreenGrid({ setActiveApp }) {
         {/* Dynamic Weather Widget */}
         <div 
           onClick={() => setActiveApp && setActiveApp("Weather")}
-          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform h-full"
+          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform"
         >
-          <div className="w-full aspect-square max-h-[150px] max-w-[150px]">
+          <div className="w-full aspect-square max-h-[135px]">
             <DynamicWeatherWidget />
           </div>
-          <span className="text-[10px] sm:text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
+          <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
             Weather
           </span>
         </div>
       </div>
 
-      {/* 2. APP ICONS GRID (FLEX-1 AUTO DYNAMIC FIT) */}
-      <div className="flex-1 grid grid-cols-4 gap-x-2 sm:gap-x-5.5 gap-y-2 sm:gap-y-3 justify-items-center items-center py-2 overflow-hidden">
+      {/* 2. MAIN APP GRID */}
+      <div className="grid grid-cols-4 gap-x-4 gap-y-3 sm:gap-y-4 justify-items-center items-center mt-1">
         {APP_GRID.map((app) => (
           <div
             key={app.id}
             onClick={() => setActiveApp && setActiveApp(app.label)}
-            className="flex flex-col items-center gap-0.5 sm:gap-1 cursor-pointer active:scale-90 transition-transform duration-150 max-h-full"
+            className="flex flex-col items-center gap-1 cursor-pointer active:scale-90 transition-transform duration-150"
           >
             {/* iOS Continuous Squircle Outer Container */}
-            <div className="relative w-[12vw] max-w-[62px] min-w-[42px] aspect-square drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]">
+            <div className="relative w-[60px] h-[60px] sm:w-[64px] sm:h-[64px] drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] shrink-0">
               <div className="relative w-full h-full [clip-path:inset(0_round_22.5%)] flex items-center justify-center overflow-hidden">
                 {/* App Content */}
                 {app.id === "calendar" ? (
@@ -328,18 +329,19 @@ export default function HomeScreenGrid({ setActiveApp }) {
 
               {/* Notification Badge */}
               {app.badge && (
-                <span className="absolute -top-1 -right-1 bg-[#FF3B30] text-white text-[9px] sm:text-[11px] font-bold px-1 min-w-[16px] sm:min-w-[20px] h-[16px] sm:h-[20px] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md z-10">
+                <span className="absolute -top-1 -right-1 bg-[#FF3B30] text-white text-[10px] sm:text-[11px] font-bold px-1 min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white/20 shadow-md z-10">
                   {app.badge}
                 </span>
               )}
             </div>
 
-            <span className="text-[9px] sm:text-[11px] font-medium text-white/90 tracking-tight drop-shadow truncate max-w-[64px] text-center">
+            <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow truncate max-w-[64px] text-center">
               {app.label}
             </span>
           </div>
         ))}
       </div>
+
     </div>
   );
 }
