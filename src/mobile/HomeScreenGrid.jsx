@@ -261,17 +261,16 @@ const APP_GRID = [
 
 export default function HomeScreenGrid({ setActiveApp }) {
   return (
-    /* Changed pb-14 to pb-[40px] (reduced padding slightly) */
-    <div className="relative z-30 w-full h-full overflow-hidden px-4 sm:px-6 pt-1 pb-[40px] flex flex-col justify-start gap-3 max-w-[430px] mx-auto select-none touch-none">
+    <div className="relative z-30 w-full h-full overflow-hidden px-4 sm:px-6 pt-1 pb-2 flex flex-col justify-evenly max-w-[430px] mx-auto select-none touch-none">
       
       {/* 1. TOP WIDGETS ROW */}
-      <div className="grid grid-cols-2 gap-4 shrink-0 mt-1">
+      <div className="grid grid-cols-2 gap-4 shrink-0">
         {/* Dynamic Calendar Widget */}
         <div 
           onClick={() => setActiveApp && setActiveApp("Calendar")}
-          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform"
+          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform w-full"
         >
-          <div className="w-full aspect-square max-h-[135px]">
+          <div className="w-full aspect-square">
             <DynamicCalendarWidget />
           </div>
           <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
@@ -282,9 +281,9 @@ export default function HomeScreenGrid({ setActiveApp }) {
         {/* Dynamic Weather Widget */}
         <div 
           onClick={() => setActiveApp && setActiveApp("Weather")}
-          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform"
+          className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform w-full"
         >
-          <div className="w-full aspect-square max-h-[135px]">
+          <div className="w-full aspect-square">
             <DynamicWeatherWidget />
           </div>
           <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
@@ -294,7 +293,7 @@ export default function HomeScreenGrid({ setActiveApp }) {
       </div>
 
       {/* 2. MAIN APP GRID */}
-      <div className="grid grid-cols-4 gap-x-4 gap-y-3 sm:gap-y-4 justify-items-center items-center mt-1">
+      <div className="grid grid-cols-4 gap-x-4 gap-y-4 sm:gap-y-5 justify-items-center items-center">
         {APP_GRID.map((app) => (
           <div
             key={app.id}
