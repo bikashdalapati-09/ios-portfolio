@@ -59,12 +59,12 @@ const DynamicCalendarWidget = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[22px] sm:rounded-[28px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 select-none">
-      <div className="flex items-center gap-1 text-[16px] sm:text-[21px] font-bold tracking-tight">
+    <div className="w-full h-full bg-[#1C1C1E]/95 backdrop-blur-2xl rounded-[22px] sm:rounded-[26px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 select-none">
+      <div className="flex items-center gap-1 text-[15px] sm:text-[18px] font-bold tracking-tight">
         <span className="text-[#FF3B30]">{calendarData.weekday}</span>
         <span className="text-white/80">{calendarData.month}</span>
       </div>
-      <div className="text-[50px] sm:text-[70px] font-bold text-white leading-none tracking-tight -mt-1">
+      <div className="text-[44px] sm:text-[56px] font-bold text-white leading-none tracking-tight -mt-1">
         {calendarData.day}
       </div>
     </div>
@@ -168,19 +168,19 @@ const DynamicWeatherWidget = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-[#2C3540]/80 backdrop-blur-2xl rounded-[22px] sm:rounded-[28px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 text-white select-none">
+    <div className="w-full h-full bg-[#2C3540]/80 backdrop-blur-2xl rounded-[22px] sm:rounded-[26px] p-3.5 sm:p-4 flex flex-col justify-between shadow-xl border border-white/5 text-white select-none">
       <div>
-        <div className="text-[11px] sm:text-[13px] font-semibold text-white/90 truncate flex items-center">
+        <div className="text-[11px] sm:text-[12px] font-semibold text-white/90 truncate flex items-center">
           <span className="truncate">{weather.location}</span>
           <LocationArrowIcon />
         </div>
-        <div className="text-[32px] sm:text-[42px] font-light leading-tight mt-0.5">
+        <div className="text-[28px] sm:text-[36px] font-light leading-tight mt-0.5">
           {weather.temp}°
         </div>
       </div>
       <div>
         <DrizzleIcon />
-        <div className="text-[10px] sm:text-[12px] font-medium text-white/95 leading-tight mt-0.5">
+        <div className="text-[10px] sm:text-[11px] font-medium text-white/95 leading-tight mt-0.5">
           {weather.condition}
         </div>
         <div className="text-[9px] sm:text-[10px] font-medium text-white/60 leading-tight">
@@ -261,16 +261,16 @@ const APP_GRID = [
 
 export default function HomeScreenGrid({ setActiveApp }) {
   return (
-    <div className="relative z-30 w-full h-full overflow-hidden px-4 sm:px-6 pt-1 pb-2 flex flex-col justify-evenly max-w-[430px] mx-auto select-none touch-none">
+    <div className="relative z-30 w-full h-full overflow-hidden px-4 sm:px-6 py-2 flex flex-col justify-start max-w-[420px] max-h-[720px] my-auto mx-auto select-none touch-none">
       
       {/* 1. TOP WIDGETS ROW */}
-      <div className="grid grid-cols-2 gap-4 shrink-0">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 shrink-0 mb-3 sm:mb-5">
         {/* Dynamic Calendar Widget */}
         <div 
           onClick={() => setActiveApp && setActiveApp("Calendar")}
           className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform w-full"
         >
-          <div className="w-full aspect-square">
+          <div className="w-full max-w-[155px] aspect-square mx-auto">
             <DynamicCalendarWidget />
           </div>
           <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
@@ -283,7 +283,7 @@ export default function HomeScreenGrid({ setActiveApp }) {
           onClick={() => setActiveApp && setActiveApp("Weather")}
           className="flex flex-col items-center gap-1 cursor-pointer active:scale-95 transition-transform w-full"
         >
-          <div className="w-full aspect-square">
+          <div className="w-full max-w-[155px] aspect-square mx-auto">
             <DynamicWeatherWidget />
           </div>
           <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow">
@@ -293,7 +293,7 @@ export default function HomeScreenGrid({ setActiveApp }) {
       </div>
 
       {/* 2. MAIN APP GRID */}
-      <div className="grid grid-cols-4 gap-x-4 gap-y-4 sm:gap-y-5 justify-items-center items-center">
+      <div className="grid grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-3 sm:gap-y-4 justify-items-center items-center">
         {APP_GRID.map((app) => (
           <div
             key={app.id}
@@ -301,7 +301,7 @@ export default function HomeScreenGrid({ setActiveApp }) {
             className="flex flex-col items-center gap-1 cursor-pointer active:scale-90 transition-transform duration-150"
           >
             {/* iOS Continuous Squircle Outer Container */}
-            <div className="relative w-[60px] h-[60px] sm:w-[64px] sm:h-[64px] drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] shrink-0">
+            <div className="relative w-[58px] h-[58px] sm:w-[62px] sm:h-[62px] drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)] shrink-0">
               <div className="relative w-full h-full [clip-path:inset(0_round_22.5%)] flex items-center justify-center overflow-hidden">
                 {/* App Content */}
                 {app.id === "calendar" ? (
@@ -334,7 +334,7 @@ export default function HomeScreenGrid({ setActiveApp }) {
               )}
             </div>
 
-            <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow truncate max-w-[64px] text-center">
+            <span className="text-[11px] font-medium text-white/90 tracking-tight drop-shadow truncate max-w-[62px] text-center">
               {app.label}
             </span>
           </div>
