@@ -15,16 +15,16 @@ export default function DraggableWindow({
   defaultY = 0,
   zIndex,
   onBringToFront,
-  headerColor = "bg-zinc-950/90",
+  headerColor = "bg-zinc-950",
   borderColor = "border-white/15",
   bgColor = "bg-black",
+  isDarkMode = true,
 }) {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [size, setSize] = useState({ width: defaultWidth, height: defaultHeight });
   const [position, setPosition] = useState({ x: defaultX, y: defaultY });
-  const [animationState, setAnimationState] = useState("opening"); // "opening" | "idle" | "closing" | "minimizing"
+  const [animationState, setAnimationState] = useState("opening");
 
-  // Reset to opening state whenever window opens or un-minimizes
   useEffect(() => {
     if (isOpen && !isMinimized) {
       setAnimationState("opening");
@@ -41,7 +41,6 @@ export default function DraggableWindow({
     setIsFullScreen((prev) => !prev);
   };
 
-  // Close with Scale-Down & Fade Out Animation
   const handleClose = (e) => {
     e.stopPropagation();
     setAnimationState("closing");
@@ -50,7 +49,6 @@ export default function DraggableWindow({
     }, 200);
   };
 
-  // Minimize with macOS Dock-Drop Animation
   const handleMinimize = (e) => {
     e.stopPropagation();
     setAnimationState("minimizing");
@@ -59,19 +57,16 @@ export default function DraggableWindow({
     }, 250);
   };
 
-  // Framer Motion animation variants
   const windowVariants = {
     opening: {
-      scale: 0.85,
+      scale: 0.88,
       opacity: 0,
-      y: 30,
-      filter: "blur(4px)",
+      y: 20,
     },
     idle: {
       scale: 1,
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
         type: "spring",
         stiffness: 340,
@@ -82,14 +77,12 @@ export default function DraggableWindow({
     closing: {
       scale: 0.92,
       opacity: 0,
-      filter: "blur(2px)",
       transition: { duration: 0.18, ease: "easeOut" },
     },
     minimizing: {
       scale: 0.3,
       opacity: 0,
-      y: 250,
-      filter: "blur(6px)",
+      y: 200,
       transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
     },
   };
@@ -122,8 +115,8 @@ export default function DraggableWindow({
                 topRight: true,
               }
         }
-        minWidth={isFullScreen ? undefined : 500}
-        minHeight={isFullScreen ? undefined : 350}
+        minWidth={isFullScreen ? undefined : 400}
+        minHeight={isFullScreen ? undefined : 300}
         onDragStop={(e, d) => {
           if (!isFullScreen) {
             setPosition({ x: d.x, y: d.y });
@@ -142,27 +135,6 @@ export default function DraggableWindow({
         }}
         onMouseDown={() => onBringToFront?.()}
         dragHandleClassName="drag-handle"
-        resizeHandleComponent={
-          isFullScreen
-            ? {}
-            : {
-                bottomRight: (
-                  <div
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      bottom: 0,
-                      width: "20px",
-                      height: "20px",
-                      cursor: "se-resize",
-                      background:
-                        "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%)",
-                      borderRadius: "0 0 16px 0",
-                    }}
-                  />
-                ),
-              }
-        }
         style={{
           position: isFullScreen ? "fixed" : "absolute",
           top: isFullScreen ? 0 : undefined,
@@ -171,52 +143,39 @@ export default function DraggableWindow({
           display: "flex",
           flexDirection: "column",
           boxSizing: "border-box",
-          // Enables smooth CSS transition on width/height/position changes for Rnd wrapper
-          transition: "width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
-        className="overflow-visible"
+        className="overflow-hidden"
       >
         <motion.div
-          layout // Enables Framer Motion smooth layout morphing
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 30,
-            mass: 0.8,
-          }}
           initial="opening"
           animate={animationState}
           variants={windowVariants}
-          style={{
-            transform: animationState === "idle" ? "none" : undefined,
-          }}
           className={`w-full h-full flex flex-col overflow-hidden origin-center ${
             isFullScreen ? "rounded-none" : "rounded-2xl"
-          } shadow-2xl border ${borderColor} ${bgColor}`}
+          } border ${borderColor} ${bgColor} shadow-2xl`}
         >
-          {/* Window Header */}
+          {/* Header Bar */}
           <div
-            className={`drag-handle h-10 px-4 flex items-center justify-between ${headerColor} backdrop-blur-md border-b border-white/10 select-none ${
+            className={`drag-handle h-10 px-4 flex items-center justify-between ${headerColor} border-b ${
+              isDarkMode ? "border-white/10" : "border-black/10"
+            } select-none ${
               isFullScreen ? "cursor-default" : "cursor-grab active:cursor-grabbing"
             } shrink-0 z-20`}
           >
-            {/* Left: Control Buttons */}
+            {/* macOS Window Controls */}
             <div className="flex items-center gap-2 w-20">
-              {/* Close (Red) */}
               <button
                 type="button"
                 onClick={handleClose}
                 title="Close"
                 className="w-3 h-3 rounded-full bg-[#FF5F56] hover:brightness-110 active:scale-90 transition-all cursor-pointer shrink-0 border-0 p-0"
               />
-              {/* Minimize (Yellow) */}
               <button
                 type="button"
                 onClick={handleMinimize}
                 title="Minimize"
                 className="w-3 h-3 rounded-full bg-[#FFBD2E] hover:brightness-110 active:scale-90 transition-all cursor-pointer shrink-0 border-0 p-0"
               />
-              {/* Fullscreen / Restore (Green) */}
               <button
                 type="button"
                 onClick={handleToggleFullScreen}
@@ -225,16 +184,19 @@ export default function DraggableWindow({
               />
             </div>
 
-            {/* Center: Title */}
-            <span className="text-xs font-medium text-zinc-400 tracking-wide text-center flex-1 truncate">
+            {/* Window Title */}
+            <span
+              className={`text-xs font-medium tracking-wide text-center flex-1 truncate ${
+                isDarkMode ? "text-zinc-400" : "text-zinc-600"
+              }`}
+            >
               {title}
             </span>
 
-            {/* Right: Balance Spacer */}
             <div className="w-20" />
           </div>
 
-          {/* Window Content Container */}
+          {/* Inner Content Area */}
           <div className="flex-1 min-h-0 w-full overflow-hidden flex flex-col relative">
             {children}
           </div>

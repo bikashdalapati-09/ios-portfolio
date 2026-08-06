@@ -171,12 +171,14 @@ const Laptop = () => {
   return (
     <div 
       onClick={handleUserInteraction}
-      className={`relative w-screen h-screen overflow-hidden select-none transition-colors duration-500 ${isDarkMode ? "bg-black dark" : "bg-zinc-200"}`}
+      className={`relative w-screen h-screen overflow-hidden select-none transition-colors duration-500 ${
+        isDarkMode ? "bg-black dark" : "bg-zinc-200"
+      }`}
     >
       {/* Background Wallpaper */}
       <div 
-        className={`absolute inset-0 bg-cover bg-center transform-gpu transition-all duration-500 ${
-          isDarkMode ? "brightness-90 contrast-105" : "brightness-110 contrast-95"
+        className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${
+          isDarkMode ? "brightness-90 contrast-105" : "brightness-105"
         }`}
         style={{ backgroundImage: `url(${photo})` }}
       />
@@ -204,14 +206,9 @@ const Laptop = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="relative w-full h-full transform-gpu will-change-transform"
+          className="relative w-full h-full"
         >
-          {/* Overlay Tint */}
-          <div className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${
-            isDarkMode ? "bg-black/20" : "bg-white/10"
-          }`} />
-
-          {/* Full Screen Workspace Container (Allows windows to go all the way to the top under the notch) */}
+          {/* Workspace Container */}
           <div className="absolute inset-0 pb-24 overflow-hidden">
             <WindowManager
               windows={windows}
@@ -249,9 +246,9 @@ const Laptop = () => {
             </motion.div>
           </div>
 
-          {/* Top Bar & Dynamic Island (Locked to top with maximum z-index so windows slide cleanly underneath) */}
+          {/* Top Bar & Dynamic Island */}
           <div className="absolute top-0 inset-x-0 z-[9999] pointer-events-none">
-            <motion.div variants={TopbarVariants} className="transform-gpu pointer-events-auto">
+            <motion.div variants={TopbarVariants} className="pointer-events-auto">
               <Topbar
                 onOpenCalculator={() => openApp("calculator")}
                 isWifiActive={isWifiActive}
@@ -271,7 +268,7 @@ const Laptop = () => {
           {/* Dock */}
           <motion.div 
             variants={dockVariants}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 transform-gpu"
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
           >
             <Dock
               isDarkMode={isDarkMode}

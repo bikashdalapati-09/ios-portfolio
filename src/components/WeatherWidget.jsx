@@ -5,13 +5,13 @@ import {
   WiRain,
   WiSnow,
   WiThunderstorm,
-  WiDayHaze
+  WiDayHaze,
 } from "react-icons/wi";
 
 export default function WeatherWidget({ onOpenWeather }) {
   const [weather, setWeather] = useState({
     temp: "--",
-    city: "Detecting location...",
+    city: "Detecting...",
     condition: "Sunny",
     forecast: [
       { day: "Today", icon: "☀️", temp: "--" },
@@ -53,6 +53,8 @@ export default function WeatherWidget({ onOpenWeather }) {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchWeather = async (lat, lon, cityName = "Current Location") => {
       try {
         const res = await fetch(
@@ -60,18 +62,19 @@ export default function WeatherWidget({ onOpenWeather }) {
         );
         const data = await res.json();
 
-        if (data && data.current) {
+        if (data && data.current && isMounted) {
           const currentTemp = Math.round(data.current.temperature_2m);
           const currentWeatherCode = data.current.weather_code;
           const details = getWeatherDetails(currentWeatherCode);
 
-          const dailyTimes = data.daily.time;
-          const dailyCodes = data.daily.weather_code;
-          const dailyMax = data.daily.temperature_2m_max;
+          const dailyTimes = data.daily?.time || [];
+          const dailyCodes = data.daily?.weather_code || [];
+          const dailyMax = data.daily?.temperature_2m_max || [];
 
           const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
           const forecastList = [0, 1, 2].map((i) => {
+            if (!dailyTimes[i]) return { day: "---", icon: "☀️", temp: "--" };
             const dateObj = new Date(dailyTimes[i]);
             const dayName = i === 0 ? "Today" : daysOfWeek[dateObj.getDay()];
             const code = dailyCodes[i];
@@ -97,38 +100,32 @@ export default function WeatherWidget({ onOpenWeather }) {
       } catch (err) {
         console.error("Failed to fetch weather data:", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    // Helper: Reverse Geocode via OpenStreetMap
+    // Reverse Geocoding via BigDataCloud (CORS friendly)
     const getCityName = async (lat, lon) => {
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
         );
         const data = await res.json();
-        return (
-          data.address?.city ||
-          data.address?.town ||
-          data.address?.village ||
-          data.address?.county ||
-          "Current Location"
-        );
+        return data.city || data.locality || data.principalSubdivision || "Current Location";
       } catch {
         return "Current Location";
       }
     };
 
-    // IP Geolocation Fallback
+    // Fast & Unblocked IP Geolocation Fallback (Works on laptops & desktops)
     const fetchIpLocation = async () => {
       try {
-        const response = await fetch("https://ipapi.co/json/");
+        const response = await fetch("https://get.geojs.io/v1/ip/geo.json");
         const locData = await response.json();
 
         if (locData && locData.latitude && locData.longitude) {
           const cityName = locData.city || locData.region || "Current Location";
-          fetchWeather(locData.latitude, locData.longitude, cityName);
+          fetchWeather(parseFloat(locData.latitude), parseFloat(locData.longitude), cityName);
         } else {
           fetchWeather(22.5726, 88.3639, "Kolkata");
         }
@@ -138,8 +135,8 @@ export default function WeatherWidget({ onOpenWeather }) {
       }
     };
 
-    // Priority 1: Browser Geolocation
-    if (navigator.geolocation) {
+    // Geolocation execution logic
+    if (navigator.geolocation && (window.isSecureContext || window.location.hostname === "localhost")) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -147,14 +144,18 @@ export default function WeatherWidget({ onOpenWeather }) {
           fetchWeather(latitude, longitude, cityName);
         },
         (error) => {
-          console.warn("Browser geolocation blocked/failed, falling back to IP:", error);
+          console.warn("Browser geolocation failed on laptop, falling back to IP:", error);
           fetchIpLocation();
         },
-        { timeout: 7000 }
+        { timeout: 4000, enableHighAccuracy: false }
       );
     } else {
       fetchIpLocation();
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
