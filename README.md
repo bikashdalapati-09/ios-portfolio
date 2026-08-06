@@ -56,7 +56,7 @@ This project reimagines the classic portfolio website by turning it into a livin
 ### 1. Clone Repository
 ```bash
 git clone https://github.com/bikashdalapati-09/ios-portfolio.git
-cd apple-ecosystem-portfolio
+cd ios-portfolio
 ```
 
 ### 2. Install Dependencies
@@ -82,7 +82,6 @@ npm run build
 ## 🎥 Demo
 
 * **Live Demo:** https://ios-portfolio-chi.vercel.app/ *(Best experienced on a desktop/laptop browser!)*
-* **Video Preview:** *Add your screen recording or GIF here*
 
 ---
 
