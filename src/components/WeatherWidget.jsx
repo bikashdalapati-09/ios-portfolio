@@ -101,6 +101,26 @@ export default function WeatherWidget({ onOpenWeather }) {
       }
     };
 
+    // Helper: Reverse Geocode via OpenStreetMap
+    const getCityName = async (lat, lon) => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+        );
+        const data = await res.json();
+        return (
+          data.address?.city ||
+          data.address?.town ||
+          data.address?.village ||
+          data.address?.county ||
+          "Current Location"
+        );
+      } catch {
+        return "Current Location";
+      }
+    };
+
+    // IP Geolocation Fallback
     const fetchIpLocation = async () => {
       try {
         const response = await fetch("https://ipapi.co/json/");
@@ -118,7 +138,23 @@ export default function WeatherWidget({ onOpenWeather }) {
       }
     };
 
-    fetchIpLocation();
+    // Priority 1: Browser Geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const cityName = await getCityName(latitude, longitude);
+          fetchWeather(latitude, longitude, cityName);
+        },
+        (error) => {
+          console.warn("Browser geolocation blocked/failed, falling back to IP:", error);
+          fetchIpLocation();
+        },
+        { timeout: 7000 }
+      );
+    } else {
+      fetchIpLocation();
+    }
   }, []);
 
   return (
