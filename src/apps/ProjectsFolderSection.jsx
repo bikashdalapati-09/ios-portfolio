@@ -21,12 +21,14 @@ import {
   FaRegFileAlt,
   FaFolderPlus,
   FaCheckCircle,
+  FaUtensils
 } from "react-icons/fa";
 
 // Project images
 import chatAppImg from "../assets/chatapp.jpeg";
 import interviewImg from "../assets/interview-agent.png";
 import portfolioImg from "../assets/portfolio.png";
+import restaurantImg from "../assets/restaurant.png"
 
 // =========================================================================
 // NESTED ICLOUD DATA MODEL
@@ -40,7 +42,7 @@ const ICLOUD_FILES_DATA = [
     id: "folder-projects",
     type: "folder",
     name: "Projects",
-    itemCount: 4,
+    itemCount: 5,
 
     children: [
       // ===================================================================
@@ -125,92 +127,89 @@ const ICLOUD_FILES_DATA = [
         size: "AI System",
       },
 
-      // ===================================================================
-      // 2. EXPENSE TRACKER
-      // ===================================================================
       {
         id: "proj-2",
         type: "project",
-        categoryId: "mern",
-        categoryName: "MERN Stack",
-        name: "Expense Tracker",
-        icon: <FaWallet className="text-sm" />,
-
-        imageUrl:
-          "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+        categoryId: "genai",
+        categoryName: "GenAI & Full Stack",
+        name: "Smart AI Restaurant Assistant",
+        icon: <FaUtensils className="text-sm" />,
+        imageUrl: restaurantImg,
 
         description:
-          "A full-stack expense management application built with the MERN stack that allows users to securely manage their daily expenses through cookie-based authentication and complete CRUD operations. Users can add, update, delete, and review expenses through a structured dashboard with summary cards, daily and total expense insights, and visual expense charts. The application also includes a GitHub-inspired developer profile page and a contact form with user feedback notifications.",
+          "A full-stack, LLM-powered restaurant web application designed to deliver an interactive digital dining experience centered around authentic Kolkata cuisine. Built with React, Node.js, LangChain, and Google Gemini API, it features an intelligent AI agent that provides real-time dish recommendations, contextual dietary suggestions, and time-aware meal specials. The app features a glassmorphic Bento UI with live Markdown response rendering.",
 
         overview:
-          "Expense Tracker is a full-stack web application for managing and analysing daily expenses. It combines secure authentication, expense CRUD operations, dashboard analytics, and visual charts into a single application.",
+          "Smart AI Restaurant Assistant bridges Generative AI with full-stack web architecture. By combining Google Gemini LLM orchestration via LangChain with an Express backend, the platform intelligently handles customer inquiries, dynamically detects local meal times to surface context-specific dishes, and delivers responses in a modern glassmorphic interface.",
 
         features: [
-          "Secure user login and logout",
-          "Cookie-based authentication",
-          "Add new expenses",
-          "Update existing expenses",
-          "Delete expenses",
-          "View expenses in a structured table",
-          "Dashboard summary cards",
-          "Total expense overview",
-          "Daily expense overview",
-          "Visual expense charts",
-          "GitHub-inspired developer profile page",
-          "Contact form",
-          "User feedback notification",
+          "Conversational AI agent for meal recommendations",
+          "Dynamic time-aware menu context (Breakfast, Lunch, Evening Adda)",
+          "LLM orchestration powered by LangChain & Google Gemini",
+          "Real-time Markdown response parsing for formatted AI output",
+          "Modern Glassmorphism & Bento-style dark mode UI",
+          "Cross-Origin Resource Sharing (CORS) production configuration",
+          "Decoupled deployment setup across Vercel and Render",
+          "Responsive mobile and desktop layout",
+          "Ambient golden glow micro-animations",
+          "Instant dish and dietary query handling",
         ],
 
         technicalDetails: [
-          "React frontend for the user interface",
-          "Tailwind CSS for responsive UI styling",
-          "Axios for frontend-backend API communication",
-          "React Router for application navigation",
-          "React Hot Toast for feedback notifications",
-          "Node.js and Express.js backend",
-          "MongoDB for persistent expense data",
-          "REST API based frontend-backend communication",
-          "Cookie-based authentication system",
-          "Controller, model, and route based backend structure",
+          "React 18 frontend built with Vite",
+          "Tailwind CSS with glassmorphic styling and ambient glow effects",
+          "Axios for HTTP requests to backend endpoints",
+          "react-markdown for dynamic parsing of formatted AI responses",
+          "Node.js and Express.js REST API server",
+          "LangChain framework for prompt templates and LLM orchestration",
+          "Google Gemini API (@google/genai SDK) integration",
+          "CORS middleware for secure cross-origin production requests",
+          "Dotenv for environment variable security management",
+          "Decoupled architecture for independent frontend/backend scaling",
+        ],
+
+        aiWorkflows: [
+          "prompt orchestration → LangChain template structuring",
+          "context detection → System clock calculation for active meal slot",
+          "intent analysis → Gemini LLM evaluation of customer query",
+          "response formatting → Markdown stream parsing to frontend UI",
         ],
 
         techStack: {
           Frontend: [
-            "React",
+            "React.js",
+            "Vite",
             "Tailwind CSS",
             "Axios",
-            "React Router",
-            "React Hot Toast",
+            "react-markdown",
           ],
-          Backend: ["Node.js", "Express.js"],
-          Database: ["MongoDB"],
-          Tools: ["VS Code", "Git", "Postman", "MongoDB Compass"],
+          Backend: ["Node.js", "Express.js", "LangChain", "Google Gemini API"],
+          Deployment: ["Vercel (Frontend)", "Render (Backend)"],
+          Security: ["CORS", "Dotenv"],
         },
 
         projectPurpose:
-          "The project demonstrates how a complete MERN application can combine authentication, CRUD operations, API communication, database persistence, dashboard analytics, and visual data representation.",
+          "The project demonstrates full-stack Generative AI integration using LLMs, LangChain prompt orchestration, real-time time-context detection, responsive modern UI design using Tailwind CSS, and production deployment across Vercel and Render.",
 
         tags: [
-          "React",
-          "Tailwind CSS",
-          "Axios",
-          "React Router",
+          "React.js",
           "Node.js",
-          "Express",
-          "MongoDB",
+          "Express.js",
+          "Google Gemini",
+          "LangChain",
+          "LLM",
+          "Tailwind CSS",
+          "Vercel",
+          "Render",
         ],
 
-        githubUrl: "https://github.com/bikashdalapati-09/expense-tracker",
-        liveUrl: null,
+        githubUrl: "https://github.com/bikashdalapati-09/genai-fullstack/tree/main/Smart-AI-Restaurant-Assistant",
+        liveUrl: "https://genai-fullstack.vercel.app",
 
-        featured: false,
-        date: "Yesterday",
-        size: "MERN Stack",
+        featured: true,
+        date: "Today",
+        size: "GenAI Stack",
       },
-
-      // ===================================================================
-      // 3. REAL-TIME CHAT APPLICATION
-      // ===================================================================
       {
         id: "proj-3",
         type: "project",
@@ -293,9 +292,6 @@ const ICLOUD_FILES_DATA = [
         size: "MERN Stack",
       },
 
-      // ===================================================================
-      // 4. MACOS PORTFOLIO SYSTEM
-      // ===================================================================
       {
         id: "proj-4",
         type: "project",
@@ -362,12 +358,91 @@ const ICLOUD_FILES_DATA = [
           "React Icons",
         ],
 
-        githubUrl: "https://github.com/bikashdalapati-09",
-        liveUrl: "#",
+        githubUrl: "https://github.com/bikashdalapati-09/ios-portfolio",
+        liveUrl: "https://ios-portfolio-chi.vercel.app/",
 
         featured: true,
         date: "Sep 20",
         size: "React UI",
+      },
+       {
+        id: "proj-5",
+        type: "project",
+        categoryId: "mern",
+        categoryName: "MERN Stack",
+        name: "Expense Tracker",
+        icon: <FaWallet className="text-sm" />,
+
+        imageUrl:
+          "https://cdn.dribbble.com/userupload/41484591/file/original-30cf9cfd729d5a22ae50ee6594c1e1a0.jpg?resize=1504x1128&vertical=center",
+
+        description:
+          "A full-stack expense management application built with the MERN stack that allows users to securely manage their daily expenses through cookie-based authentication and complete CRUD operations. Users can add, update, delete, and review expenses through a structured dashboard with summary cards, daily and total expense insights, and visual expense charts. The application also includes a GitHub-inspired developer profile page and a contact form with user feedback notifications.",
+
+        overview:
+          "Expense Tracker is a full-stack web application for managing and analysing daily expenses. It combines secure authentication, expense CRUD operations, dashboard analytics, and visual charts into a single application.",
+
+        features: [
+          "Secure user login and logout",
+          "Cookie-based authentication",
+          "Add new expenses",
+          "Update existing expenses",
+          "Delete expenses",
+          "View expenses in a structured table",
+          "Dashboard summary cards",
+          "Total expense overview",
+          "Daily expense overview",
+          "Visual expense charts",
+          "GitHub-inspired developer profile page",
+          "Contact form",
+          "User feedback notification",
+        ],
+
+        technicalDetails: [
+          "React frontend for the user interface",
+          "Tailwind CSS for responsive UI styling",
+          "Axios for frontend-backend API communication",
+          "React Router for application navigation",
+          "React Hot Toast for feedback notifications",
+          "Node.js and Express.js backend",
+          "MongoDB for persistent expense data",
+          "REST API based frontend-backend communication",
+          "Cookie-based authentication system",
+          "Controller, model, and route based backend structure",
+        ],
+
+        techStack: {
+          Frontend: [
+            "React",
+            "Tailwind CSS",
+            "Axios",
+            "React Router",
+            "React Hot Toast",
+          ],
+          Backend: ["Node.js", "Express.js"],
+          Database: ["MongoDB"],
+          Tools: ["VS Code", "Git", "Postman", "MongoDB Compass"],
+        },
+
+        projectPurpose:
+          "The project demonstrates how a complete MERN application can combine authentication, CRUD operations, API communication, database persistence, dashboard analytics, and visual data representation.",
+
+        tags: [
+          "React",
+          "Tailwind CSS",
+          "Axios",
+          "React Router",
+          "Node.js",
+          "Express",
+          "MongoDB",
+        ],
+
+        githubUrl: "https://github.com/bikashdalapati-09/expense-tracker",
+        liveUrl: null,
+
+        featured: false,
+        date: "Yesterday",
+        size: "MERN Stack",
       },
     ],
   },
@@ -491,7 +566,7 @@ export default function ProjectsFolderSection({
     if (!searchQuery.trim()) return rawList;
 
     return rawList.filter((item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [currentFolder, searchQuery, initialFiles]);
 
@@ -627,7 +702,7 @@ export default function ProjectsFolderSection({
                       ))}
                     </div>
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
@@ -758,9 +833,7 @@ export default function ProjectsFolderSection({
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() =>
-                setViewMode(viewMode === "grid" ? "list" : "grid")
-              }
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
               className="hover:text-white transition-colors cursor-pointer"
             >
               {viewMode === "grid" ? <FaList /> : <FaThLarge />}
