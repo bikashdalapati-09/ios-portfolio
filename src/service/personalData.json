@@ -1,0 +1,96 @@
+{
+  "profile": {
+    "name": "Bikash Dalapati",
+    "email": "bikashdalapati09@gmail.com",
+    "location": "Uluberia, West Bengal, India",
+    "phone": "+91-8927182293",
+    "socials": {
+      "linkedin": "https://www.linkedin.com/in/bikashdalapati09/",
+      "github": "https://github.com/bikashdalapati-09"
+    },
+    "role": "Full-Stack Software Engineer & AI Systems Developer",
+    "specialization": "MERN Stack Development, Generative AI Integration & Algorithmic Problem Solving",
+    "summary": "B.Tech Computer Science and Engineering student at OmDayal Group of Institutions (CGPA: 8.0) specializing in scalable full-stack web applications, Ai integration, and competitive programming in C++."
+  },
+  "technical_skills": {
+    "languages": ["C", "C++", "JavaScript", "Python", "SQL", "HTML", "CSS", "Java (OOP fundamentals)"],
+    "frontend": ["React.js", "Redux", "Tailwind CSS", "Framer Motion", "react-rnd", "Glassmorphism UI", "Bento Grid Layouts"],
+    "backend": ["Node.js", "Express.js", "REST APIs", "JWT", "Socket.IO", "ZOD"],
+    "databases": ["MongoDB", "MySQL", "Pinecone"],
+    "Generative AI": ["LLM", "Agentic AI", "Langchain", "RAG"],
+    "tools_and_platforms": ["Git", "GitHub","vs code" , "Firebase", "Razorpay", "Postman", "Vercel", "Render"],
+    "core_cs": ["Data Structures & Algorithms", "Operating Systems", "OOPS", "DBMS", "Computer Networks"]
+  },
+  "projects": [
+    {
+      "id": "apple-os-portfolio",
+      "name": "Interactive macOS & iOS Web Ecosystem Portfolio",
+      "architecture": "React 18, Framer Motion, react-rnd, Tailwind CSS, Web Battery API",
+      "highlights": [
+        "Architected an adaptive dual-environment portfolio seamlessly transitioning between a full desktop macOS experience and an interactive iPhone hardware enclosure based on viewport size.",
+        "Engineered a macOS window manager with draggable, resizable, and focus-layered windows using react-rnd, alongside spring-physics Dock magnification.",
+        "Built native iOS hardware interactions including functional Dynamic Island controls, side physical buttons, lock screen workflows, and real-time system power status via navigator.getBattery().",
+        "Designed custom desktop widgets (Weather, Calendar, Notes) and glassmorphic UI components with Apple boot-up sequence animations."
+      ]
+    },
+    {
+      "id": "kolkata-kitchen-ai",
+      "name": "Smart AI Restaurant Assistant (Kolkata Kitchen)",
+      "live_url": "https://genai-fullstack.vercel.app/",
+      "architecture": "Monorepo (React, Express.js, @google/genai SDK, Tailwind CSS)",
+      "highlights": [
+        "Architected a full-stack AI-powered dining assistant for Bengali cuisine and meal discovery using Google Gemini API.",
+        "Engineered dynamic meal-time context detection (Breakfast, Lunch, Dinner & Evening Adda) to suggest localized daily specials.",
+        "Designed a dark-mode Bento & Glassmorphism UI with real-time Markdown rendering via react-markdown.",
+        "Deployed decoupled architecture with frontend on Vercel CDN and Node backend service on Render."
+      ]
+    },
+    {
+      "id": "interviewx-ai",
+      "name": "InterviewX | AI-Powered Mock Interview Platform",
+      "architecture": "MERN Stack, Firebase, Razorpay, OpenRouter API (GPT-4o Mini)",
+      "highlights": [
+        "Integrated GPT-4o Mini via OpenRouter for automated resume analysis and interview question generation.",
+        "Implemented secure user authentication with JWT and Firebase Google Sign-In.",
+        "Developed RESTful APIs for interview session management and AI-generated performance reports.",
+        "Integrated Razorpay payment gateway for token-based interview access."
+      ]
+    },
+    {
+      "id": "realtime-chat-app",
+      "name": "Real-Time Chat Application",
+      "architecture": "MERN Stack, Socket.IO, JWT",
+      "highlights": [
+        "Built a scalable real-time chat application supporting low-latency multi-user messaging via Socket.IO.",
+        "Implemented JWT-based authentication for secure user session management.",
+        "Stored chat history and managed real-time user presence tracking in MongoDB."
+      ]
+    },
+    {
+      "id": "expense-tracker",
+      "name": "Full-Stack Expense Tracker",
+      "architecture": "MERN Stack, Tailwind CSS, REST APIs",
+      "highlights": [
+        "Developed CRUD operations with expense categorization and monthly summaries.",
+        "Built a responsive dashboard UI using Tailwind CSS to visualize transactions and overall spending."
+      ]
+    }
+  ],
+  "education": {
+    "degree": "B.Tech in Computer Science and Engineering",
+    "institution": "OmDayal Group of Institutions Engineering and Architecture College, Howrah",
+    "cgpa": "8.00 (till 6th semester)",
+    "relevant_coursework": [
+      "Data Structures",
+      "Operating Systems",
+      "OOPS",
+      "DBMS",
+      "Computer Networks"
+    ]
+  },
+  "achievements": [
+    "Solved 1000+ DSA problems on LeetCode.",
+    "Achieved LeetCode contest rating of 1608 with a 550+ daily Problem of the Day (POTD) streak.",
+    "Achieved CodeChef 2-star rating (1500+)."
+  ]
+}

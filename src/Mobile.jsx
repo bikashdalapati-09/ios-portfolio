@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import IosBootAndLock from "./mobile/IOSBootAndLock";
 import HomeScreenGrid from "./mobile/HomeScreenGrid";
 import AppModal from "./mobile/AppModal";
 import mobileWallpaper from "./assets/mob-wall.jpeg";
+import siriVideo from "./assets/siri1.webm";
+import { aiService } from "./service/aiService";
 
 // --- iOS SIGNAL BARS ICON ---
 const SignalBarsIcon = () => (
@@ -40,13 +42,10 @@ const BatteryPillIcon = ({ level, isCharging }) => {
   return (
     <div className="flex items-center gap-[1.5px] shrink-0 select-none">
       <div className="relative w-[27px] h-[13px] rounded-[4.5px] p-[1px] flex items-center justify-between overflow-hidden transition-colors duration-300 bg-white/20 backdrop-blur-md border border-white/10">
-        {/* Dynamic Battery Level Fill Bar */}
         <div
           className={`h-full rounded-[3px] transition-all duration-300 ${getFillColor()}`}
           style={{ width: `${Math.max(level, 10)}%` }}
         />
-
-        {/* Battery Level Text & Charging Lightning Bolt Overlay */}
         <div className="absolute inset-0 flex items-center justify-center gap-[0.5px] px-0.5 pointer-events-none">
           <span
             className={`text-[8.5px] font-bold tracking-tight leading-none ${
@@ -59,7 +58,6 @@ const BatteryPillIcon = ({ level, isCharging }) => {
           >
             {level}
           </span>
-
           {isCharging && (
             <svg
               className="w-2 h-2.5 text-white fill-current drop-shadow-[0_0.5px_1px_rgba(0,0,0,0.5)] -ml-[0.5px]"
@@ -70,8 +68,6 @@ const BatteryPillIcon = ({ level, isCharging }) => {
           )}
         </div>
       </div>
-
-      {/* Battery Nipple/Cap */}
       <div
         className={`w-[1.5px] h-[4px] rounded-r-[1px] transition-colors duration-300 ${getCapColor()}`}
       />
@@ -124,6 +120,84 @@ export default function Mobile() {
 
   const [batteryLevel, setBatteryLevel] = useState(90);
   const [isCharging, setIsCharging] = useState(false);
+  const [isSiriActive, setIsSiriActive] = useState(false);
+  const [siriTranscript, setSiriTranscript] = useState("");
+  const [streamedResponse, setStreamedResponse] = useState("");
+  const [isListeningForQuery, setIsListeningForQuery] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState([]);
+
+  const recognitionRef = useRef(null);
+  const streamIntervalRef = useRef(null);
+  const autoCloseTimeoutRef = useRef(null);
+
+  // Synchronize available browser voices
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) return;
+
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  // Dedicated speech handler (optimized specifically for voice output)
+  const speakFemaleVoice = (text, onEndCallback) => {
+    if (!("speechSynthesis" in window)) {
+      if (onEndCallback) onEndCallback();
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    // DIFFERENCE FOR VOICE: Strip formatting syntax so Siri speaks naturally
+    const cleanSpeechText = text
+      .replace(/https?:\/\/\S+/g, "") // Remove URLs
+      .replace(/[*_#`~>]/g, "")       // Strip Markdown symbols
+      .replace(/[-+*]\s+/g, "")       // Strip list bullets
+      .replace(/\s+/g, " ")           // Normalize whitespace
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
+
+    const femaleVoice = availableVoices.find(
+      (v) =>
+        v.lang.startsWith("en") &&
+        (v.name.includes("Samantha") ||
+          v.name.includes("Victoria") ||
+          v.name.includes("Karen") ||
+          v.name.includes("Zira") ||
+          v.name.includes("Female") ||
+          v.name.toLowerCase().includes("google us english"))
+    );
+
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+    utterance.pitch = 1.0;
+    utterance.rate = 1.0;
+
+    let executed = false;
+    const handleEnd = () => {
+      if (!executed) {
+        executed = true;
+        if (onEndCallback) onEndCallback();
+      }
+    };
+
+    utterance.onend = handleEnd;
+    utterance.onerror = handleEnd;
+
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance);
+    }, 60);
+  };
 
   useEffect(() => {
     let batteryObj = null;
@@ -133,26 +207,23 @@ export default function Mobile() {
       setIsCharging(battery.charging);
     };
 
+    const handleLevelChange = () => batteryObj && updateBattery(batteryObj);
+    const handleChargingChange = () => batteryObj && updateBattery(batteryObj);
+
     if ("getBattery" in navigator) {
       navigator.getBattery().then((battery) => {
         batteryObj = battery;
         updateBattery(battery);
 
-        battery.addEventListener("levelchange", () => updateBattery(battery));
-        battery.addEventListener("chargingchange", () =>
-          updateBattery(battery),
-        );
+        battery.addEventListener("levelchange", handleLevelChange);
+        battery.addEventListener("chargingchange", handleChargingChange);
       });
     }
 
     return () => {
       if (batteryObj) {
-        batteryObj.removeEventListener("levelchange", () =>
-          updateBattery(batteryObj),
-        );
-        batteryObj.removeEventListener("chargingchange", () =>
-          updateBattery(batteryObj),
-        );
+        batteryObj.removeEventListener("levelchange", handleLevelChange);
+        batteryObj.removeEventListener("chargingchange", handleChargingChange);
       }
     };
   }, []);
@@ -162,8 +233,167 @@ export default function Mobile() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleUnlock = () => setIsUnlocked(true);
-  const handleLock = () => setIsUnlocked(false);
+  useEffect(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+      setIsListeningForQuery(true);
+    };
+
+    recognition.onresult = (event) => {
+      const text = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join("");
+
+      const latestResult = event.results[event.results.length - 1];
+      if (latestResult?.isFinal) {
+        const cleanedQuery = text
+          .trim()
+          .replace(/^(hey siri|siri)\b/i, "")
+          .trim();
+
+        setSiriTranscript(cleanedQuery || text.trim());
+        setIsListeningForQuery(false);
+        processAIQuery(cleanedQuery || text.trim());
+      }
+    };
+
+    recognition.onerror = (event) => {
+      setIsListeningForQuery(false);
+      const errMsg =
+        event.error === "no-speech"
+          ? "I didn't hear anything. Try speaking again."
+          : "Voice recognition failed.";
+      setStreamedResponse(errMsg);
+      speakFemaleVoice(errMsg, () => {
+        autoCloseTimeoutRef.current = setTimeout(closeSiri, 1500);
+      });
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch {}
+      }
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current);
+      }
+      if (autoCloseTimeoutRef.current) {
+        clearTimeout(autoCloseTimeoutRef.current);
+      }
+      window.speechSynthesis?.cancel();
+    };
+  }, [availableVoices]);
+
+  // DIFFERENCE FOR TEXT DISPLAY: Stream words while keeping spaces & commas intact
+  const processAIQuery = async (query) => {
+    if (!query.trim()) {
+      closeSiri();
+      return;
+    }
+
+    setStreamedResponse("");
+    try {
+      const rawReply = await aiService(query);
+      const fullReply = rawReply || "How can I help you today?";
+
+      const displayText = fullReply.replace(/[ \t]+/g, " ").trim();
+      const words = displayText.split(" ");
+
+      if (streamIntervalRef.current) {
+        clearInterval(streamIntervalRef.current);
+      }
+
+      let currentIndex = 0;
+      streamIntervalRef.current = setInterval(() => {
+        if (currentIndex >= words.length) {
+          clearInterval(streamIntervalRef.current);
+          streamIntervalRef.current = null;
+          return;
+        }
+
+        const nextWord = words[currentIndex];
+        if (nextWord !== undefined) {
+          setStreamedResponse((prev) =>
+            prev ? `${prev} ${nextWord}` : nextWord
+          );
+        }
+        currentIndex += 1;
+      }, 70);
+
+      // Trigger Voice Playback separately using the cleaned speech payload
+      speakFemaleVoice(displayText, () => {
+        autoCloseTimeoutRef.current = setTimeout(() => {
+          closeSiri();
+        }, 1200);
+      });
+    } catch {
+      const errorReply = "Sorry, I ran into an issue connecting.";
+      setStreamedResponse(errorReply);
+      speakFemaleVoice(errorReply, () => {
+        autoCloseTimeoutRef.current = setTimeout(closeSiri, 1500);
+      });
+    }
+  };
+
+  const closeSiri = () => {
+    setIsSiriActive(false);
+    setIsListeningForQuery(false);
+    setSiriTranscript("");
+    setStreamedResponse("");
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+    }
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current);
+      streamIntervalRef.current = null;
+    }
+
+    if (autoCloseTimeoutRef.current) {
+      clearTimeout(autoCloseTimeoutRef.current);
+      autoCloseTimeoutRef.current = null;
+    }
+  };
+
+  const triggerSiri = () => {
+    if (isSiriActive) {
+      closeSiri();
+      return;
+    }
+
+    if ("speechSynthesis" in window && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    setIsSiriActive(true);
+    setSiriTranscript("");
+    setStreamedResponse("");
+
+    try {
+      recognitionRef.current?.start();
+    } catch {
+      setIsListeningForQuery(false);
+    }
+  };
 
   const hours = currentTime.getHours() % 12 || 12;
   const minutes = currentTime.getMinutes().toString().padStart(2, "0");
@@ -172,7 +402,7 @@ export default function Mobile() {
   return (
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-0 sm:p-4 overflow-hidden select-none">
       {!isUnlocked ? (
-        <IosBootAndLock onUnlock={handleUnlock} />
+        <IosBootAndLock onUnlock={() => setIsUnlocked(true)} />
       ) : (
         <div className="relative w-full sm:w-[390px] h-screen sm:h-[844px] sm:rounded-[50px] bg-black shadow-2xl overflow-hidden border-0 outline-none flex flex-col justify-start">
           {/* iOS Blurred Background */}
@@ -191,7 +421,6 @@ export default function Mobile() {
 
           {/* BOTTOM SEARCH PILL & DOCK */}
           <div className="relative z-30 pb-2 px-5 flex flex-col items-center mt-auto">
-            {/* Search Pill */}
             <div className="bg-white/20 backdrop-blur-xl px-4 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-white/10 cursor-pointer active:scale-95 transition-transform mb-3">
               <SearchIcon />
               <span className="text-[12px] font-medium text-white/90 tracking-tight">
@@ -199,7 +428,6 @@ export default function Mobile() {
               </span>
             </div>
 
-            {/* Bottom Dock Container */}
             <div className="w-full bg-white/20 backdrop-blur-3xl rounded-[38px] p-3.5 flex justify-between items-center border border-white/20 shadow-2xl px-5">
               {DOCK_APPS.map((dockApp) => (
                 <div
@@ -232,11 +460,10 @@ export default function Mobile() {
               ))}
             </div>
 
-            {/* Home Indicator */}
             <div className="w-36 h-1 bg-white/90 rounded-full mt-3 mb-1" />
           </div>
 
-          {/* APP OVERLAY MODAL (z-40) */}
+          {/* APP OVERLAY MODAL */}
           <AnimatePresence>
             {activeApp && (
               <AppModal
@@ -248,59 +475,80 @@ export default function Mobile() {
 
           {/* TOP STATUS BAR & DYNAMIC ISLAND */}
           <div className="absolute top-0 inset-x-0 z-50 flex justify-between items-center px-7 pt-3.5 pb-1 text-white pointer-events-none">
-            {/* Time */}
             <span className="text-[15px] font-semibold tracking-tight text-white/95 pointer-events-auto">
               {formattedTime}
             </span>
 
-            {/* Dynamic Island */}
             <button
-              onClick={handleLock}
-              title="Lock Phone"
-              className="
-      absolute
-      left-1/2
-      -translate-x-1/2
-      top-2.5
-      w-[120px]
-      h-[35px]
-      bg-black
-      rounded-full
-      z-50
-      cursor-pointer
-      active:scale-95
-      transition-transform
-      pointer-events-auto
-      shadow-md
-    "
+              onClick={triggerSiri}
+              title="Activate Siri"
+              type="button"
+              className="absolute left-1/2 -translate-x-1/2 top-2.5 w-[120px] h-[35px] bg-black rounded-full z-50 cursor-pointer active:scale-95 transition-transform pointer-events-auto shadow-md"
             >
-              {/* Orange microphone dot */}
-              <span
-                className="
-        absolute
-        right-[38px]
-        top-1/2
-        -translate-y-1/2
-        w-[6px]
-        h-[6px]
-        bg-[#FF9500]
-        rounded-full
-        shadow-[0_0_4px_rgba(255,149,0,0.6)]
-      "
-              />
+              <span className="absolute right-[38px] top-1/2 -translate-y-1/2 w-[6px] h-[6px] bg-[#FF9500] rounded-full shadow-[0_0_4px_rgba(255,149,0,0.6)]" />
             </button>
 
-            {/* Right status icons */}
             <div className="flex items-center gap-1.5 pointer-events-auto">
               <SignalBarsIcon />
-
               <span className="text-[12px] font-semibold tracking-tight text-white/95">
                 5G
               </span>
-
               <BatteryPillIcon level={batteryLevel} isCharging={isCharging} />
             </div>
           </div>
+
+          {/* SIRI OVERLAY */}
+          <AnimatePresence>
+            {isSiriActive && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={closeSiri}
+                className="absolute inset-0 z-50 bg-black/20 flex flex-col justify-end items-center px-4 pb-8 cursor-pointer pointer-events-auto"
+              >
+                {/* Floating Response Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full max-w-[350px] bg-white/20 backdrop-blur-2xl border border-white/20 rounded-3xl p-4 shadow-2xl mb-3 pointer-events-auto select-none max-h-[220px] overflow-y-auto"
+                >
+                  {Boolean(siriTranscript) && (
+                    <p className="text-[13px] font-medium tracking-tight text-white/70 mb-1 line-clamp-1">
+                      "{siriTranscript}"
+                    </p>
+                  )}
+
+                  <p className="text-[15px] font-bold text-white leading-snug whitespace-pre-wrap">
+                    {isListeningForQuery
+                      ? "Listening..."
+                      : streamedResponse || "Thinking..."}
+                  </p>
+                </motion.div>
+
+                {/* Siri Glowing Orb */}
+                <motion.div
+                  initial={{ scale: 0.2, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.2, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative w-24 h-24 rounded-full overflow-hidden shadow-[0_0_35px_rgba(168,85,247,0.75)] shrink-0"
+                >
+                  <video
+                    src={siriVideo}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover scale-125"
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </div>

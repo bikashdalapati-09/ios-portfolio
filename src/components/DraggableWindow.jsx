@@ -152,7 +152,7 @@ export default function DraggableWindow({
           variants={windowVariants}
           className={`w-full h-full flex flex-col overflow-hidden origin-center ${
             isFullScreen ? "rounded-none" : "rounded-2xl"
-          } border ${borderColor} ${bgColor} shadow-2xl`}
+          } border ${borderColor} ${bgColor}`}
         >
           {/* Header Bar */}
           <div

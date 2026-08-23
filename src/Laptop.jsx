@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import photo from "./assets/wallpaper.jpg";
 
 import Topbar from "./components/Topbar";
-import DynamicIsland from "./components/DynamicIsland";
 import DesktopIcons from "./components/DesktopIcons";
 import Dock from "./components/Dock";
 
@@ -260,9 +259,6 @@ const Laptop = () => {
                 isOpenFinder={() => handleOpenFinderCategory("recents")}
               />
             </motion.div>
-            <div className="pointer-events-auto">
-              <DynamicIsland />
-            </div>
           </div>
 
           {/* Dock */}
