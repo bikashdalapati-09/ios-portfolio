@@ -441,7 +441,7 @@ export default function DynamicIsland({ onSiriClick, appHandlers = {} }) {
                       loop
                       muted
                       playsInline
-                      className="w-full h-full object-cover mix-blend-screen scale-125"
+                      className="w-full h-full object-cover mix-blend-screen scale-182"
                     />
                   </div>
 
