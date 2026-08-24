@@ -102,11 +102,11 @@ export default function PhotosApp() {
   return (
     <div className="w-full h-full bg-zinc-950 text-zinc-100 flex flex-col font-sans select-none overflow-hidden relative">
       
-      {/* MACOS TOOLBAR HEADER */}
-      <div className="h-13 px-4 py-2 bg-zinc-900/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between shrink-0 z-10">
+      {/* TOOLBAR HEADER */}
+      <div className="pt-14 pb-2 px-3 sm:pt-2 sm:pb-2 sm:px-4 sm:h-13 bg-zinc-900/90 backdrop-blur-md border-b border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0 z-10">
         
         {/* Navigation & Section Tabs */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between w-full sm:w-auto gap-3 pl-10 sm:pl-0">
           <div className="flex items-center gap-1 bg-zinc-800/80 p-0.5 rounded-lg border border-white/5">
             <button
               onClick={() => setActiveTab("library")}
@@ -126,13 +126,13 @@ export default function PhotosApp() {
             </button>
           </div>
 
-          <span className="text-xs text-zinc-400 font-medium">
+          <span className="text-xs text-zinc-400 font-medium shrink-0">
             {filteredPhotos.length} {filteredPhotos.length === 1 ? "Item" : "Items"}
           </span>
         </div>
 
-        {/* Center: Search Field */}
-        <div className="w-64 relative">
+        {/* Search Field */}
+        <div className="w-full sm:w-64 relative">
           <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
@@ -151,8 +151,8 @@ export default function PhotosApp() {
           )}
         </div>
 
-        {/* Right: Grid Size Zoom Control */}
-        <div className="flex items-center gap-2">
+        {/* Right: Zoom Control (Desktop Only) */}
+        <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={() => setGridColumns((prev) => Math.min(prev + 1, 6))}
             disabled={gridColumns >= 6}
@@ -205,7 +205,7 @@ export default function PhotosApp() {
                   alt={photo.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
-                  onContextMenu={(e) => e.preventDefault()} // Disable right-click save
+                  onContextMenu={(e) => e.preventDefault()}
                 />
 
                 {/* Hover Gradient Overlay & Favorite Button */}
@@ -232,18 +232,18 @@ export default function PhotosApp() {
         )}
       </div>
 
-      {/* MACOS INSPECTOR / LIGHTBOX MODAL */}
+      {/* LIGHTBOX MODAL */}
       {selectedPhoto && (
         <div className="absolute inset-0 z-50 bg-zinc-950/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-150">
           
           {/* Lightbox Toolbar Header */}
-          <div className="h-12 px-4 bg-zinc-900/80 border-b border-white/10 flex items-center justify-between shrink-0">
+          <div className="pt-14 pb-2 px-4 sm:pt-0 sm:pb-0 sm:h-12 bg-zinc-900/80 border-b border-white/10 flex items-center justify-between shrink-0">
             <button
               onClick={() => {
                 setSelectedIndex(null);
                 setShowInfo(false);
               }}
-              className="px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 font-medium flex items-center gap-1 transition-all"
+              className="px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 font-medium flex items-center gap-1 transition-all pl-2 sm:pl-2.5"
             >
               <ChevronLeft className="w-4 h-4" /> Back to Library
             </button>
@@ -312,7 +312,7 @@ export default function PhotosApp() {
               </button>
             )}
 
-            {/* macOS Inspector Sidebar Panel */}
+            {/* Inspector Sidebar Panel */}
             {showInfo && (
               <div className="w-72 bg-zinc-900 border-l border-white/10 p-4 flex flex-col gap-4 text-xs z-10 animate-in slide-in-from-right duration-200 overflow-y-auto">
                 <h3 className="font-semibold text-zinc-200 border-b border-white/10 pb-2">

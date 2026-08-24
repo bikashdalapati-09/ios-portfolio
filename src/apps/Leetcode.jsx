@@ -121,9 +121,9 @@ export default function LeetCodeApp() {
     <div className="min-h-screen w-full bg-[#1a1a1a] text-[#eff1f6]/75 font-sans text-xs flex flex-col selection:bg-[#ffa116]/30 selection:text-[#ffa116]">
       
       {/* ================= TOP NAVIGATION BAR ================= */}
-      <header className="sticky top-0 z-30 bg-[#282828] border-b border-[#3e3e3e] px-4 sm:px-8 py-2.5 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-[#282828] border-b border-[#3e3e3e] px-4 sm:px-8 pt-12 pb-2.5 sm:py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <a href={leetCodeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-bold text-lg">
+          <a href={leetCodeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-bold text-lg pl-9 sm:pl-0 pt-0.5 sm:pt-0">
             <span className="text-[#ffa116]">LeetCode</span>
           </a>
           
@@ -157,7 +157,7 @@ export default function LeetCodeApp() {
       </header>
 
       {/* ================= SCROLLABLE CONTAINER ================= */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-53px)] scrollbar-thin scrollbar-thumb-zinc-700">
+      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-53px)] scrollbar-none scrollbar-thumb-zinc-700">
         <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
           
           {loading ? (
@@ -374,7 +374,7 @@ export default function LeetCodeApp() {
                 <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-3 border border-[#3e3e3e]/40">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-base font-bold text-white">1.2k</span>
+                      <span className="text-base font-bold text-white">1.2</span>
                       <span className="text-zinc-400">submissions in the past year</span>
                     </div>
                     <div className="flex items-center gap-3 text-zinc-400 text-[11px]">
@@ -488,7 +488,7 @@ export default function LeetCodeApp() {
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span className="text-xs">All Systems Operational</span>
               </div>
-              <a href={leetCodeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[#ffa116] font-semibold hover:underline">
+              <a href={leetCodeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[#ffa116] font-semibold hover:underline ">
                 LeetCode Profile <ChevronRight className="w-3.5 h-3.5" />
               </a>
             </div>
