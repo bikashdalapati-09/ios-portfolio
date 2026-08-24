@@ -3,7 +3,10 @@ import React, { useState, useRef, useEffect } from "react";
 export default function TerminalApp() {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState([
-    { type: "output", text: "Last login: " + new Date().toDateString() + " on ttys001" },
+    {
+      type: "output",
+      text: "Last login: " + new Date().toDateString() + " on ttys001",
+    },
     { type: "output", text: "Type 'help' to see available commands." },
   ]);
 
@@ -18,7 +21,8 @@ export default function TerminalApp() {
   // 2. Keep terminal scrolled to bottom internally when history updates
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      scrollContainerRef.current.scrollTop =
+        scrollContainerRef.current.scrollHeight;
     }
   }, [history]);
 
@@ -27,7 +31,10 @@ export default function TerminalApp() {
     const cmd = input.trim().toLowerCase();
     if (!cmd) return;
 
-    const newHistory = [...history, { type: "input", text: `bikash@macbook-pro ~ % ${input}` }];
+    const newHistory = [
+      ...history,
+      { type: "input", text: `bikash@macbook-pro ~ % ${input}` },
+    ];
 
     switch (cmd) {
       case "help":
@@ -40,35 +47,35 @@ export default function TerminalApp() {
       case "about":
         newHistory.push({
           type: "output",
-          text: "BIKASH DALAPATI\nLocation: Uluberia, West Bengal, India\nSummary: Computer Science Engineering student specializing in MERN stack web development and DSA problem solving.",
+          text: "BIKASH DALAPATI\nLocation: Uluberia, West Bengal, India\nSummary: Computer Science Engineering student specializing in MERN stack web development + AI integration and DSA problem solving.",
         });
         break;
 
       case "education":
         newHistory.push({
           type: "output",
-          text: "Degree: B.Tech in Computer Science and Engineering\nCollege: OmDayal Group of Institutions Engineering and Architecture College, Howrah\nCGPA: 7.8 (till 5th semester)\nRelevant Coursework: Data Structures, Operating Systems, OOPS, DBMS, Computer Networks",
+          text: "Degree: B.Tech in Computer Science and Engineering\nCollege: OmDayal Group of Institutions Engineering and Architecture College, Howrah\nCGPA: 8.00 (till 6th semester)\nRelevant Coursework: Data Structures, Operating Systems, OOPS, DBMS, Computer Networks",
         });
         break;
 
       case "skills":
         newHistory.push({
           type: "output",
-          text: "Languages: C, C++, JavaScript, Python\nFrontend: React.js, Redux, HTML, CSS, Tailwind CSS\nBackend: Node.js, Express.js, REST APIs, JWT\nDatabase: MongoDB, MySQL\nTools: Git, GitHub, Firebase, Razorpay, Postman",
+          text: "Languages: C, C++, JavaScript, Python, SQL, HTML, CSS, Java (OOP fundamentals)\nFrontend: React.js, Redux, Tailwind CSS, Framer Motion, react-rnd, Glassmorphism UI\nBackend: Node.js, Express.js, REST APIs, JWT, Socket.IO, ZOD\nDatabases: MongoDB, MySQL, Pinecone\nGenerative AI: LLM, Agentic AI, Langchain, RAG\nTools & Platforms: Git, GitHub, vs code, Firebase, Razorpay, Postman, Vercel, Render\nCore CS: Data Structures & Algorithms, Operating Systems, OOPS, DBMS, Computer Networks",
         });
         break;
 
       case "projects":
         newHistory.push({
           type: "output",
-          text: "1. InterviewX | AI-Powered Mock Interview Platform\n   - Integrated GPT-4o Mini (OpenRouter) for resume analysis & interview generation.\n   - Tech Stack: React.js, Node.js, Express.js, MongoDB, Firebase, Razorpay, OpenRouter API\n\n2. Real-Time Chat Application\n   - Scalable chat platform using Socket.IO for low-latency communication.\n   - Tech Stack: React.js, Node.js, Express.js, MongoDB, Socket.IO\n\n3. Expense Tracker\n   - Full-stack MERN expense tracking app with JWT auth & transaction visualizer.\n   - Tech Stack: React.js, Node.js, Express.js, MongoDB, Tailwind CSS",
+          text: "1. Interactive macOS & iOS Web Ecosystem Portfolio: React 18, Framer Motion, react-rnd, Tailwind CSS, Web Battery API - Adaptive dual-environment portfolio with macOS window management, iOS hardware simulation, and glassmorphic widgets.\n\n2. Smart AI Restaurant Assistant (Kolkata Kitchen): Monorepo (React, Express.js, @google/genai SDK, Tailwind CSS) - AI dining assistant for Bengali cuisine featuring meal-time context detection and Bento UI.\n\n3. InterviewX | AI-Powered Mock Interview Platform: MERN Stack, Firebase, Razorpay, OpenRouter API (GPT-4o Mini) - AI mock interview platform with resume analysis, automated report generation, and Razorpay payments.\n\n4. Real-Time Chat Application: MERN Stack, Socket.IO, JWT - Low-latency multi-user messaging system with real-time presence tracking and secure JWT auth.\n\n5. Full-Stack Expense Tracker: MERN Stack, Tailwind CSS, REST APIs - Full-stack financial dashboard with categorized expense tracking, CRUD operations, and monthly analytics."
         });
         break;
 
       case "achievements":
         newHistory.push({
           type: "output",
-          text: "🏆 Solved 970+ DSA problems on LeetCode\n🏆 Achieved LeetCode contest rating of 1608 with a 500+ daily POTD streak\n🏆 Achieved CodeChef 2-star rating (1400+)",
+          text: "🏆 Solved 1000+ DSA problems on LeetCode\n🏆 Achieved LeetCode contest rating of 1608 with a 550+ daily POTD streak\n🏆 Achieved CodeChef 2-star rating (1550+)",
         });
         break;
 
@@ -120,8 +127,13 @@ export default function TerminalApp() {
         ))}
 
         {/* Active Command Prompt Line */}
-        <form onSubmit={handleCommand} className="flex items-center gap-2 mt-1 shrink-0">
-          <span className="text-emerald-500 font-bold shrink-0">bikash@macbook ~ %</span>
+        <form
+          onSubmit={handleCommand}
+          className="flex items-center gap-2 mt-1 shrink-0"
+        >
+          <span className="text-emerald-500 font-bold shrink-0">
+            bikash@macbook ~ %
+          </span>
           <input
             ref={inputRef}
             type="text"

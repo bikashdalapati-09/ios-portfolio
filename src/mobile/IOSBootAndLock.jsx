@@ -4,6 +4,7 @@ import logo from "../assets/logo.png";
 import mobileWallpaper from "../assets/mob-wall.jpeg";
 import faceIdVideo from "../assets/face-id.webm";
 import siriVideo from "../assets/siri1.webm";
+import helloSvg from "../assets/hello.svg";
 import HomeScreenGrid from "./HomeScreenGrid";
 import LockScreen from "./LockScreen";
 import AppModal from "./AppModal";
@@ -106,7 +107,6 @@ export default function IosBootAndLock({ onUnlock }) {
     const list = voicesList && voicesList.length > 0 ? voicesList : loadAndSetVoices();
     if (!list || list.length === 0) return null;
 
-    // Direct female voice lookup (Siri, Samantha, Victoria, Zira, Karen, Google US English)
     const femaleVoice =
       list.find(
         (voice) =>
@@ -162,10 +162,16 @@ export default function IosBootAndLock({ onUnlock }) {
     };
   }, []);
 
+  // Sequence Flow: booting -> hello -> lockscreen
   useEffect(() => {
-    if (screenState !== "booting") return;
-    const timer = setTimeout(() => setScreenState("lockscreen"), 1200);
-    return () => clearTimeout(timer);
+    if (screenState === "booting") {
+      const bootTimer = setTimeout(() => setScreenState("hello"), 1200);
+      return () => clearTimeout(bootTimer);
+    }
+    if (screenState === "hello") {
+      const helloTimer = setTimeout(() => setScreenState("lockscreen"), 3000);
+      return () => clearTimeout(helloTimer);
+    }
   }, [screenState]);
 
   useEffect(() => {
@@ -422,7 +428,6 @@ export default function IosBootAndLock({ onUnlock }) {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
 
-      // Clean speech text by removing Markdown elements
       const cleanSpeechText = safeText
         .replace(/https?:\/\/\S+/g, "")
         .replace(/[*_#`~>]/g, "")
@@ -437,7 +442,7 @@ export default function IosBootAndLock({ onUnlock }) {
         utterance.voice = chosenVoice;
       }
 
-      utterance.pitch = 1.05; // Slightly elevated pitch for natural Siri voice
+      utterance.pitch = 1.05;
       utterance.rate = 1.0;
 
       utterance.onend = () => {
@@ -518,7 +523,7 @@ export default function IosBootAndLock({ onUnlock }) {
           />
 
           {/* STATUS BAR & DYNAMIC ISLAND */}
-          {screenState !== "booting" && (
+          {screenState !== "booting" && screenState !== "hello" && (
             <div className="absolute top-0 inset-x-0 z-50 flex justify-between items-center px-7 pt-3.5 text-white pointer-events-none">
               <span className="text-[15px] font-semibold tracking-tight text-white/95 pointer-events-auto">
                 {formattedTime}
@@ -569,7 +574,6 @@ export default function IosBootAndLock({ onUnlock }) {
                 onClick={closeSiri}
                 className="absolute inset-0 z-50 bg-black/20 backdrop-blur-[2px] flex flex-col justify-end items-center pb-10 px-6 cursor-pointer"
               >
-                {/* Glassmorphic Streamed Result Card */}
                 {(isListeningForQuery || siriTranscript || streamedResponse) && (
                   <motion.div
                     initial={{ opacity: 0, y: 20, scale: 0.92 }}
@@ -584,7 +588,6 @@ export default function IosBootAndLock({ onUnlock }) {
                   >
                     <div className="absolute -top-12 -left-12 w-24 h-24 bg-white/10 rounded-full blur-lg pointer-events-none" />
 
-                    {/* Live Transcript Display */}
                     {siriTranscript ? (
                       <p className="text-xs font-semibold tracking-wide text-white/70 uppercase mb-2">
                         "{siriTranscript}"
@@ -597,7 +600,6 @@ export default function IosBootAndLock({ onUnlock }) {
                       )
                     )}
 
-                    {/* AI Output Display */}
                     {streamedResponse ? (
                       <p className="text-base font-medium text-white leading-relaxed tracking-tight drop-shadow-sm whitespace-pre-wrap">
                         {streamedResponse}
@@ -616,7 +618,6 @@ export default function IosBootAndLock({ onUnlock }) {
                   </motion.div>
                 )}
 
-                {/* Floating Siri Orb */}
                 <motion.div
                   initial={{ scale: 0.2, y: 30, opacity: 0 }}
                   animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -642,21 +643,59 @@ export default function IosBootAndLock({ onUnlock }) {
           </AnimatePresence>
 
           {/* 1. APPLE BOOT SCREEN */}
-          {screenState === "booting" && (
-            <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center gap-6">
-              <img src={logo} alt="Apple Logo" className="w-16 h-16 object-contain" />
-              <div className="w-36 h-1 bg-zinc-800 rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 1.0, ease: "easeInOut" }}
-                  className="h-full bg-white rounded-full"
-                />
-              </div>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {screenState === "booting" && (
+              <motion.div 
+                key="boot-screen"
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center gap-6"
+              >
+                <img src={logo} alt="Apple Logo" className="w-16 h-16 object-contain" />
+                <div className="w-36 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 1.0, ease: "easeInOut" }}
+                    className="h-full bg-white rounded-full"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* 2. iOS LOCK SCREEN */}
+          {/* 2. APPLE HELLO ANIMATION OVERLAY */}
+          <AnimatePresence mode="wait">
+            {screenState === "hello" && (
+              <motion.div
+                key="hello-screen"
+                initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                animate={{ 
+                  opacity: 1, 
+                  backdropFilter: "blur(20px)",
+                  transition: { duration: 1.0, ease: [0.16, 1, 0.3, 1] } 
+                }}
+                exit={{ 
+                  opacity: 0, 
+                  backdropFilter: "blur(0px)",
+                  transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+                }}
+                className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-saturate-150"
+              >
+                <motion.img 
+                  initial={{ opacity: 0, scale: 0.92, y: 15 }}
+                  animate={{ opacity: 0.95, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 1.05, y: -15 }}
+                  transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                  src={helloSvg} 
+                  alt="Hello" 
+                  className="w-64 max-w-[70%] h-auto drop-shadow-[0_10px_25px_rgba(0,0,0,0.5)] select-none pointer-events-none" 
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* 3. iOS LOCK SCREEN */}
           <AnimatePresence>
             {screenState === "lockscreen" && (
               <motion.div
@@ -665,13 +704,14 @@ export default function IosBootAndLock({ onUnlock }) {
                 drag={isSwipingUp ? false : "y"}
                 dragConstraints={{ top: 0, bottom: 0 }}
                 dragElastic={0.2}
+                initial={{ opacity: 0, scale: 1.02 }}
                 animate={
                   isSwipingUp
                     ? { y: "-100%", opacity: 0 }
-                    : { y: "0%", opacity: 1 }
+                    : { y: "0%", opacity: 1, scale: 1 }
                 }
                 exit={{ y: "-100%", opacity: 0 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 onDragEnd={(_, info) => {
                   if (info.offset.y < -40 || info.velocity.y < -150) {
                     triggerSwipeUpToUnlock();
@@ -687,7 +727,7 @@ export default function IosBootAndLock({ onUnlock }) {
             )}
           </AnimatePresence>
 
-          {/* 3. PASSCODE SCREEN */}
+          {/* 4. PASSCODE SCREEN */}
           {screenState === "passcode" && (
             <div className="relative z-30 h-full flex flex-col justify-between pt-20 pb-8 px-8 backdrop-blur-3xl bg-black/50">
               <div className="flex flex-col items-center mt-2">
@@ -772,7 +812,7 @@ export default function IosBootAndLock({ onUnlock }) {
             </div>
           )}
 
-          {/* 4. iOS HOME SCREEN */}
+          {/* 5. iOS HOME SCREEN */}
           {screenState === "homescreen" && (
             <motion.div
               initial={{ scale: 1.05, opacity: 0 }}

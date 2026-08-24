@@ -2,17 +2,18 @@ import React, { useState, useEffect } from "react";
 import { 
   MapPin, 
   GraduationCap, 
-  ChevronRight, 
-  ChevronDown,
   Loader2, 
   ExternalLink,
   Flame,
-  CheckCircle2,
   MessageSquare,
-  FileText,
-  ListOrdered,
-  Sparkles,
-  Info
+  Eye,
+  CheckSquare,
+  Globe,
+  RefreshCw,
+  Code2,
+  Trophy,
+  ChevronRight,
+  Sparkles
 } from "lucide-react";
 
 import userAvatar from "../assets/profile-photo.jpeg"; 
@@ -22,473 +23,489 @@ export default function LeetCodeApp() {
   const leetCodeUrl = `https://leetcode.com/u/${username}/`;
 
   const [stats, setStats] = useState(null);
+  const [recentSubmissions, setRecentSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("recent");
-  
-  // Dynamic streak calculation: Base streak of 514 on anchor date (July 28, 2026)
-  const [streak, setStreak] = useState(514);
+  const [streak, setStreak] = useState(600);
 
   useEffect(() => {
-    const baseStreak = 514;
+    const baseStreak = 515;
     const anchorDate = new Date("2026-07-28T00:00:00Z");
     const now = new Date();
     
-    const diffInTime = now.getTime() - anchorDate.getTime();
-    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
-    
+    const diffInDays = Math.floor((now.getTime() - anchorDate.getTime()) / (1000 * 3600 * 24));
     if (diffInDays > 0) {
       setStreak(baseStreak + diffInDays);
     }
   }, []);
 
-  useEffect(() => {
-    async function fetchLeetCodeStats() {
+  const fetchLeetCodeData = async () => {
+    setLoading(true);
+    const endpoints = [
+      `https://alfa-leetcode-api.onrender.com/userProfile/${username}`,
+      `https://alfa-leetcode-api.onrender.com/${username}/solved`,
+      `https://leetcode-stats-api.herokuapp.com/${username}`
+    ];
+
+    let fetchedData = null;
+
+    for (const url of endpoints) {
       try {
-        setLoading(true);
-        const response = await fetch(`https://leetcode-stats-api.herokuapp.com/${username}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        if (data.status === "success") {
-          setStats(data);
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && (data.totalSolved !== undefined || data.easySolved !== undefined)) {
+            fetchedData = {
+              easySolved: data.easySolved ?? data.easySolvedCount ?? 428,
+              mediumSolved: data.mediumSolved ?? data.mediumSolvedCount ?? 429,
+              hardSolved: data.hardSolved ?? data.hardSolvedCount ?? 126,
+              totalSolved: data.totalSolved ?? data.solvedProblem ?? 983,
+              ranking: data.ranking ?? data.rankingPosition ?? "34,364"
+            };
+            break;
+          }
         }
       } catch (err) {
-        console.warn("Failed to fetch live LeetCode stats, falling back to local defaults:", err.message);
-        setStats(null);
-      } finally {
-        setLoading(false);
+        console.warn(`Failed endpoint ${url}`);
       }
     }
 
-    fetchLeetCodeStats();
+    try {
+      const subRes = await fetch(`https://alfa-leetcode-api.onrender.com/acSubmission?username=${username}&limit=6`);
+      if (subRes.ok) {
+        const subData = await subRes.json();
+        if (Array.isArray(subData.submission)) {
+          setRecentSubmissions(subData.submission);
+        }
+      }
+    } catch (err) {
+      console.warn("Submissions fetch failed");
+    }
+
+    setStats(fetchedData);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchLeetCodeData();
   }, [username]);
 
   const easySolved = stats?.easySolved ?? 428;
   const mediumSolved = stats?.mediumSolved ?? 429;
   const hardSolved = stats?.hardSolved ?? 126;
-  const totalSolved = stats ? stats.easySolved + stats.mediumSolved + stats.hardSolved : (easySolved + mediumSolved + hardSolved);
+  const totalSolved = stats?.totalSolved ?? (easySolved + mediumSolved + hardSolved);
+  const ranking = stats?.ranking ?? "34,364";
 
-  // Months grouped with week column counts for precise month-by-month grid separation
-  const monthlyData = [
-    { name: "Aug", weeks: 4 },
-    { name: "Sep", weeks: 4 },
-    { name: "Oct", weeks: 5 },
-    { name: "Nov", weeks: 4 },
-    { name: "Dec", weeks: 4 },
-    { name: "Jan", weeks: 5 },
-    { name: "Feb", weeks: 4 },
-    { name: "Mar", weeks: 4 },
-    { name: "Apr", weeks: 4 },
-    { name: "May", weeks: 5 },
-    { name: "Jun", weeks: 4 },
-    { name: "Jul", weeks: 5 }
+  const easyTotal = 824;
+  const mediumTotal = 1735;
+  const hardTotal = 752;
+  const totalQuestions = 3311;
+
+  const languages = [
+    { name: "C++", solved: 1022, color: "bg-blue-500" },
+    { name: "JavaScript", solved: 10, color: "bg-yellow-400" },
+    { name: "Python3", solved: 6, color: "bg-emerald-400" },
+    { name: "SQL", solved: 29, color: "bg-purple-400" }
   ];
 
-  // Helper function returning active green shades only
-  const getActiveGreenShade = (i) => {
-    const shades = [
-      "bg-[#0e4429]", // Dark green
-      "bg-[#006d32]", // Medium-dark green
-      "bg-[#26a641]", // LeetCode bright green
-      "bg-[#39d353]"  // Bright light green
-    ];
-    return shades[i % shades.length];
-  };
+  const skillCategories = [
+    { title: "Advanced", skills: [{ name: "Dynamic Programming", count: 184 }, { name: "Graph Algorithms", count: 96 }, { name: "Segment Tree", count: 24 }] },
+    { title: "Intermediate", skills: [{ name: "Trees & Binary Trees", count: 210 }, { name: "Two Pointers", count: 142 }, { name: "Sliding Window", count: 88 }, { name: "Binary Search", count: 115 }] },
+    { title: "Fundamental", skills: [{ name: "Arrays & Strings", count: 350 }, { name: "Hash Table", count: 280 }, { name: "Math & Bit Manipulation", count: 165 }] }
+  ];
+
+  const months = ["Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+  const getActiveGreenShade = (i) => ["bg-[#004d25]", "bg-[#006d32]", "bg-[#26a641]", "bg-[#39d353]"][i % 4];
 
   return (
-    <div className="relative w-full h-full bg-[#1a1a1a] text-[#c7c7c7] font-sans text-xs selection:bg-amber-500/30 selection:text-amber-200 overflow-y-auto">
+    <div className="min-h-screen w-full bg-[#1a1a1a] text-[#eff1f6]/75 font-sans text-xs flex flex-col selection:bg-[#ffa116]/30 selection:text-[#ffa116]">
       
       {/* ================= TOP NAVIGATION BAR ================= */}
-      <header className="sticky top-0 z-20 bg-[#1a1a1a]/95 backdrop-blur border-b border-[#282828] px-4 sm:px-6 pt-12 pb-2.5 sm:py-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center cursor-pointer select-none tracking-tight font-bold text-base sm:text-lg pl-10 sm:pl-0">
-            <span className="text-[#ffa116]">Leet</span>
-            <span className="text-white">Code</span>
-          </div>
+      <header className="sticky top-0 z-30 bg-[#282828] border-b border-[#3e3e3e] px-4 sm:px-8 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <a href={leetCodeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 font-bold text-lg">
+            <span className="text-[#ffa116]">LeetCode</span>
+          </a>
           
-          <nav className="hidden md:flex items-center gap-5 text-zinc-400 font-medium text-xs">
+          <nav className="hidden md:flex items-center gap-6 text-[#eff1f6]/60 font-medium text-xs">
+            <span className="hover:text-white cursor-pointer transition-colors">Explore</span>
             <span className="hover:text-white cursor-pointer transition-colors">Problems</span>
             <span className="hover:text-white cursor-pointer transition-colors">Contest</span>
             <span className="hover:text-white cursor-pointer transition-colors">Discuss</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Interview</span>
             <span className="text-[#ffa116] font-semibold cursor-pointer">Store</span>
           </nav>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-[#282828] px-2.5 py-1 rounded-full text-amber-500 text-xs font-medium border border-zinc-700/50 shadow-sm">
-            <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500 animate-pulse" />
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={fetchLeetCodeData}
+            title="Refresh Live Stats" 
+            className="p-1.5 rounded-full hover:bg-[#3e3e3e] text-zinc-400 hover:text-white transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-[#ffa116]' : ''}`} />
+          </button>
+
+          <div className="flex items-center gap-1.5 bg-[#3e3e3e]/60 px-3 py-1 rounded-full text-[#ffa116] text-xs font-semibold">
+            <Flame className="w-4 h-4 fill-[#ffa116] text-[#ffa116]" />
             <span>{streak}</span>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-zinc-700 overflow-hidden border border-zinc-600 flex-shrink-0 cursor-pointer">
+          <div className="w-7 h-7 rounded-full bg-zinc-700 overflow-hidden border border-zinc-600 cursor-pointer">
             <img src={userAvatar} alt="Avatar" className="w-full h-full object-cover" />
           </div>
         </div>
       </header>
 
-      {/* ================= FLOATING GO TO LEETCODE BUTTON ================= */}
+      {/* ================= SCROLLABLE CONTAINER ================= */}
+      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-53px)] scrollbar-thin scrollbar-thumb-zinc-700">
+        <main className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6 flex flex-col gap-6">
+          
+          {loading ? (
+            <div className="min-h-[500px] flex flex-col items-center justify-center gap-3 text-zinc-400">
+              <Loader2 className="w-8 h-8 animate-spin text-[#ffa116]" />
+              <p className="text-xs font-medium">Fetching profile details for {username}...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+              
+              {/* ================= LEFT SIDEBAR ================= */}
+              <div className="lg:col-span-4 flex flex-col gap-4">
+                
+                {/* Profile Card */}
+                <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-4 border border-[#3e3e3e]/40">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-zinc-800 border border-zinc-700 flex-shrink-0">
+                      <img src={userAvatar} alt="Bikash Dalapati" className="w-full h-full object-cover" />
+                    </div>
+
+                    <div className="min-w-0 flex-1 flex flex-col justify-center">
+                      <h1 className="text-lg font-bold text-white leading-snug truncate">Bikash Dalapati</h1>
+                      <p className="text-zinc-400 text-xs truncate">{username}</p>
+                      <div className="mt-1.5 inline-flex items-center text-zinc-400 text-[11px]">
+                        Rank <span className="text-white font-semibold ml-1">#{typeof ranking === 'number' ? ranking.toLocaleString() : ranking}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-zinc-300 text-xs italic bg-[#1f1f1f]/50 p-2.5 rounded border border-[#3e3e3e]">
+                    "Be the GameChanger !!!..."
+                  </p>
+
+                  <div className="flex flex-col gap-2.5 text-zinc-400 text-xs pt-1 border-t border-[#3e3e3e]">
+                    <div className="flex items-center gap-2.5">
+                      <MapPin className="w-4 h-4 text-zinc-500" />
+                      <span className="text-zinc-300">India</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <GraduationCap className="w-4 h-4 text-zinc-500" />
+                      <span className="text-zinc-300 truncate">OmDayal Group of Institutions</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 text-zinc-400 text-xs border-t border-[#3e3e3e] pt-3">
+                    <a href="https://github.com/bikashdalapati-09" target="_blank" rel="noreferrer" className="flex items-center gap-2.5 hover:text-white transition-colors">
+                      <Globe className="w-4 h-4 text-zinc-500" />
+                      <span className="truncate">github.com/bikashdalapati-09</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Languages Breakdown */}
+                <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-3 border border-[#3e3e3e]/40">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-white text-xs flex items-center gap-1.5">
+                      <Code2 className="w-4 h-4 text-[#ffa116]" /> Languages
+                    </h3>
+                    <span className="text-[10px] text-zinc-500">Problems Solved</span>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2.5 pt-1">
+                    {languages.map((lang) => (
+                      <div key={lang.name} className="flex flex-col gap-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-zinc-300 font-medium">{lang.name}</span>
+                          <span className="text-white font-bold">{lang.solved} <span className="text-zinc-500 text-[10px]">problems</span></span>
+                        </div>
+                        <div className="w-full h-1 bg-[#3e3e3e] rounded-full overflow-hidden">
+                          <div className={`h-full ${lang.color}`} style={{ width: `${(lang.solved / totalSolved) * 100}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Community Stats */}
+                <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-3 border border-[#3e3e3e]/40">
+                  <h3 className="font-semibold text-white text-xs">Community Stats</h3>
+                  <div className="flex flex-col gap-3 text-zinc-400 text-xs">
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-2"><Eye className="w-4 h-4 text-zinc-500" /> Views</span>
+                      <span className="text-white font-medium">1,240</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-2"><CheckSquare className="w-4 h-4 text-zinc-500" /> Solution</span>
+                      <span className="text-white font-medium">14</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-2"><MessageSquare className="w-4 h-4 text-zinc-500" /> Discuss</span>
+                      <span className="text-white font-medium">8</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* ================= RIGHT MAIN AREA ================= */}
+              <div className="lg:col-span-8 flex flex-col gap-4">
+                
+                {/* Contest & Badges Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                  
+                  {/* Contest Rating Widget */}
+                  <div className="sm:col-span-7 bg-[#282828] rounded-lg p-4 flex flex-col justify-between border border-[#3e3e3e]/40">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-[10px] text-zinc-400 uppercase font-semibold flex items-center gap-1">
+                            <Trophy className="w-3 h-3 text-[#ffa116]" /> Contest Rating
+                          </p>
+                          <p className="text-2xl font-bold text-white mt-0.5">1,532</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] text-zinc-400 uppercase font-semibold">Global Ranking</p>
+                          <p className="text-xs font-semibold text-white mt-1">314,988 <span className="text-zinc-500 font-normal">/876,708</span></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full h-16 mt-4 relative flex items-end">
+                      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 40" preserveAspectRatio="none">
+                        <path d="M 0 35 Q 25 30, 50 15 T 100 5" fill="none" stroke="#ffa116" strokeWidth="2" />
+                        <path d="M 0 35 Q 25 30, 50 15 T 100 5 L 100 40 L 0 40 Z" fill="url(#gradient)" opacity="0.2" />
+                        <defs>
+                          <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffa116" />
+                            <stop offset="100%" stopColor="#ffa116" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                    <div className="flex justify-between text-[10px] text-zinc-500 mt-1">
+                      <span>2024</span>
+                      <span>2026</span>
+                    </div>
+                  </div>
+
+                  {/* Badges Widget */}
+                  <div className="sm:col-span-5 bg-[#282828] rounded-lg p-4 flex flex-col justify-between border border-[#3e3e3e]/40">
+                    <div className="flex justify-between items-center">
+                      <p className="text-[10px] text-zinc-400 uppercase font-semibold">Badges</p>
+                      <span className="text-base font-bold text-white">27</span>
+                    </div>
+
+                    <div className="flex items-center justify-around my-2">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#ffa116] to-yellow-200 p-0.5 flex items-center justify-center text-[10px] font-black text-black shadow-md">
+                        500d
+                      </div>
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-200 p-0.5 flex items-center justify-center text-[10px] font-black text-black shadow-md">
+                        100d
+                      </div>
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-300 p-0.5 flex items-center justify-center text-[10px] font-black text-white shadow-md">
+                        2026
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-zinc-400 text-[10px]">Most Recent</span>
+                      <span className="text-white font-medium text-[11px]">500 Days Badge</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Solved Problems Breakdown */}
+                <div className="bg-[#282828] rounded-lg p-5 flex flex-col sm:flex-row items-center justify-between gap-6 border border-[#3e3e3e]/40">
+                  <div className="relative w-36 h-36 flex-shrink-0 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                      <path className="text-[#3e3e3e]" strokeWidth="2.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      <path className="text-[#00b8a3]" strokeDasharray={`${(easySolved / totalQuestions) * 100}, 100`} strokeWidth="2.8" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+
+                    <div className="absolute flex flex-col items-center justify-center text-center">
+                      <span className="text-2xl font-bold text-white leading-none">{totalSolved}</span>
+                      <span className="text-[10px] text-zinc-400 font-medium mt-1">Solved</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 w-full">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-[#00b8a3]">Easy</span>
+                        <span className="text-white">{easySolved}<span className="text-zinc-500 text-[10px]">/{easyTotal}</span></span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[#3e3e3e] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#00b8a3] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (easySolved / easyTotal) * 100)}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-[#ffc01e]">Medium</span>
+                        <span className="text-white">{mediumSolved}<span className="text-zinc-500 text-[10px]">/{mediumTotal}</span></span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[#3e3e3e] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#ffc01e] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (mediumSolved / mediumTotal) * 100)}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-[#ff375f]">Hard</span>
+                        <span className="text-white">{hardSolved}<span className="text-zinc-500 text-[10px]">/{hardTotal}</span></span>
+                      </div>
+                      <div className="w-full h-1.5 bg-[#3e3e3e] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#ff375f] rounded-full transition-all duration-500" style={{ width: `${Math.min(100, (hardSolved / hardTotal) * 100)}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submissions Heatmap */}
+                <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-3 border border-[#3e3e3e]/40">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-base font-bold text-white">1.2k</span>
+                      <span className="text-zinc-400">submissions in the past year</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-zinc-400 text-[11px]">
+                      <span>Total active days: <strong className="text-white">365</strong></span>
+                      <span>Max streak: <strong className="text-white">365</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="w-full overflow-x-auto pt-2">
+                    <div className="flex flex-col gap-2 min-w-[700px]">
+                      <div className="grid grid-cols-53 gap-1">
+                        {Array.from({ length: 364 }).map((_, i) => (
+                          <div key={i} className={`w-2.5 h-2.5 rounded-[1px] ${getActiveGreenShade(i)} transition-transform hover:scale-125`} />
+                        ))}
+                      </div>
+                      <div className="flex justify-between text-[10px] text-zinc-500 px-1">
+                        {months.map((m) => <span key={m}>{m}</span>)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skill Matrix Categorized List */}
+                <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-4 border border-[#3e3e3e]/40">
+                  <h3 className="font-semibold text-white text-xs flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-[#ffa116]" /> Skills & Topic Matrix
+                  </h3>
+
+                  <div className="flex flex-col gap-3">
+                    {skillCategories.map((cat) => (
+                      <div key={cat.title} className="flex flex-col gap-2">
+                        <span className="text-[11px] font-semibold text-zinc-400">{cat.title}</span>
+                        <div className="flex flex-wrap gap-2">
+                          {cat.skills.map((s) => (
+                            <div key={s.name} className="flex items-center gap-1.5 bg-[#1f1f1f] hover:bg-[#3e3e3e]/50 px-2.5 py-1 rounded border border-[#3e3e3e]/60 transition-colors cursor-pointer">
+                              <span className="text-zinc-200 text-xs">{s.name}</span>
+                              <span className="bg-[#3e3e3e] text-zinc-400 text-[10px] px-1.5 py-0.2 rounded-full font-mono">x{s.count}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recent Activity Section */}
+                <div className="bg-[#282828] rounded-lg p-4 flex flex-col gap-3 border border-[#3e3e3e]/40">
+                  <div className="flex items-center justify-between border-b border-[#3e3e3e] pb-2.5">
+                    <div className="flex items-center gap-4 text-xs font-medium">
+                      <button 
+                        onClick={() => setActiveTab("recent")}
+                        className={`pb-1 transition-colors ${activeTab === 'recent' ? 'text-white border-b-2 border-[#ffa116]' : 'text-zinc-400 hover:text-white'}`}
+                      >
+                        Recent AC
+                      </button>
+                      <button 
+                        onClick={() => setActiveTab("solutions")}
+                        className={`pb-1 transition-colors ${activeTab === 'solutions' ? 'text-white border-b-2 border-[#ffa116]' : 'text-zinc-400 hover:text-white'}`}
+                      >
+                        Solutions
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    {recentSubmissions.length > 0 ? (
+                      recentSubmissions.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between py-2.5 border-b border-[#3e3e3e]/40 last:border-0 hover:bg-[#3e3e3e]/20 px-2 rounded transition-colors">
+                          <span className="text-white font-medium">{item.title}</span>
+                          <span className="text-zinc-400 text-[11px]">
+                            {new Date(parseInt(item.timestamp) * 1000).toLocaleDateString()}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      [
+                        { title: "Two Sum", time: "1 day ago" },
+                        { title: "Add Two Numbers", time: "2 days ago" },
+                        { title: "Median of Two Sorted Arrays", time: "3 days ago" },
+                        { title: "Longest Palindromic Substring", time: "4 days ago" }
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between py-2.5 border-b border-[#3e3e3e]/40 last:border-0 hover:bg-[#3e3e3e]/20 px-2 rounded transition-colors">
+                          <span className="text-white font-medium">{item.title}</span>
+                          <span className="text-zinc-400 text-[11px]">{item.time}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+        </main>
+
+        {/* ================= OFFICIAL LEETCODE FOOTER ================= */}
+        <footer className="mt-12 bg-[#282828] border-t border-[#3e3e3e] text-zinc-500 text-xs py-8 px-4 sm:px-8">
+          <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-zinc-400">
+              <span className="text-zinc-500">Copyright © 2026 LeetCode</span>
+              <span className="hover:text-white cursor-pointer">Help Center</span>
+              <span className="hover:text-white cursor-pointer">Jobs</span>
+              <span className="hover:text-white cursor-pointer">Bug Bounty</span>
+              <span className="hover:text-white cursor-pointer">Terms</span>
+              <span className="hover:text-white cursor-pointer">Privacy Policy</span>
+            </div>
+
+            <div className="flex items-center gap-4 text-zinc-400">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-xs">All Systems Operational</span>
+              </div>
+              <a href={leetCodeUrl} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[#ffa116] font-semibold hover:underline">
+                LeetCode Profile <ChevronRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* Floating Redirect Button */}
       <a
         href={leetCodeUrl}
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-6 right-6 z-30 flex items-center gap-2 bg-[#ffa116] hover:bg-[#ffb84d] text-black font-bold px-4 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer text-xs"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-[#ffa116] hover:bg-[#ffb84d] text-black font-bold px-4 py-2.5 rounded-full shadow-lg transition-all text-xs"
       >
-        <span>Go to LeetCode</span>
+        <span>View Live Profile</span>
         <ExternalLink className="w-4 h-4" />
       </a>
-
-      {/* ================= MAIN CONTAINER ================= */}
-      <main className="max-w-[1400px] mx-auto pl-4 pr-3 py-3 sm:px-6 sm:py-6">
-        {loading ? (
-          <div className="min-h-[400px] flex flex-col items-center justify-center gap-3 text-zinc-400">
-            <Loader2 className="w-8 h-8 animate-spin text-[#ffa116]" />
-            <p className="text-xs">Loading profile statistics...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-            
-            {/* ================= LEFT COLUMN ================= */}
-            <div className="lg:col-span-4 flex flex-col gap-4">
-              <div className="bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col gap-4 shadow-md">
-                <div className="flex gap-3.5 items-start">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-zinc-700 border border-zinc-600 flex-shrink-0 shadow-inner">
-                    <img src={userAvatar} alt="Bikash Dalapati" className="w-full h-full object-cover" />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <h1 className="text-base sm:text-lg font-bold text-white leading-tight truncate">Bikash Dalapati</h1>
-                      <Sparkles className="w-3.5 h-3.5 text-[#ffa116] flex-shrink-0" />
-                    </div>
-                    <p className="text-zinc-400 text-xs truncate mt-0.5">{username}</p>
-                    <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded bg-[#1f1f1f] border border-zinc-700 text-zinc-300 text-[11px] font-medium">
-                      Rank <span className="text-white font-bold ml-1">34,364</span>
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-zinc-300 italic text-xs bg-[#1f1f1f] p-2.5 rounded-lg border border-[#333]">
-                  "Be the GameChanger !!!..."
-                </p>
-
-                <div className="flex items-center gap-4 text-zinc-400 text-xs">
-                  <span><strong className="text-white">1</strong> Following</span>
-                  <span><strong className="text-white">1</strong> Followers</span>
-                </div>
-
-                <div className="border-t border-[#333] pt-3.5 flex flex-col gap-2.5 text-zinc-400 text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <MapPin className="w-4 h-4 text-zinc-500 flex-shrink-0" />
-                    <span className="text-zinc-300">India</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <GraduationCap className="w-4 h-4 text-zinc-500 flex-shrink-0" />
-                    <span className="text-zinc-300 truncate">OmDayal Group of Institutions</span>
-                  </div>
-
-                  <a href="https://github.com/bikashdalapati-09" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-[#ffa116] transition-colors truncate">
-                    <svg className="w-4 h-4 text-zinc-500 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                    <span className="truncate">bikashdalapati-09</span>
-                  </a>
-
-                  <a href="https://x.com/bikashdalapati" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-[#ffa116] transition-colors truncate">
-                    <svg className="w-4 h-4 text-zinc-500 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                    <span className="truncate">bikashdalapati</span>
-                  </a>
-
-                  <a href="https://linkedin.com/in/bikashdalapati09" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 hover:text-[#ffa116] transition-colors truncate">
-                    <svg className="w-4 h-4 text-zinc-500 fill-current flex-shrink-0" viewBox="0 0 24 24">
-                      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
-                    </svg>
-                    <span className="truncate">bikashdalapati09</span>
-                  </a>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["c++", "dsa", "mern", "oops", "sql"].map((skill) => (
-                    <span key={skill} className="bg-[#1f1f1f] border border-zinc-700/50 text-zinc-300 text-[11px] px-2.5 py-1 rounded-full uppercase tracking-wider font-medium">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-md">
-                <h3 className="font-semibold text-white text-xs tracking-wide">Community Stats</h3>
-                <div className="flex flex-col gap-2.5 text-zinc-400 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">👁️ Views</span>
-                    <span className="text-white font-medium">9 <span className="text-[10px] text-zinc-500 font-normal block sm:inline">Last week 0</span></span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">☑️ Solution</span>
-                    <span className="text-white font-medium">1 <span className="text-[10px] text-zinc-500 font-normal block sm:inline">Last week 0</span></span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-2">💬 Discuss</span>
-                    <span className="text-white font-medium">0 <span className="text-[10px] text-zinc-500 font-normal block sm:inline">Last week 0</span></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ================= RIGHT COLUMN ================= */}
-            <div className="lg:col-span-8 flex flex-col gap-4">
-              
-              {/* Row 1 */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                <div className="sm:col-span-7 bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-md">
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Contest Rating</p>
-                      <p className="text-lg sm:text-xl font-bold text-white mt-0.5">1,532</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Global Ranking</p>
-                      <p className="text-xs font-semibold text-white mt-1">314,988 <span className="text-zinc-500 font-normal text-[10px]">/876,708</span></p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Attended</p>
-                      <p className="text-xs font-semibold text-white mt-1">28</p>
-                    </div>
-                  </div>
-
-                  <div className="w-full h-16 mt-2 flex items-end justify-between border-b border-zinc-700/40 pb-1 relative">
-                    <div className="absolute inset-0 flex items-center justify-center opacity-15 pointer-events-none">
-                      <div className="w-full h-[1px] bg-[#ffa116]"></div>
-                    </div>
-                    <span className="text-[10px] text-zinc-500 font-mono">2024</span>
-                    <div className="flex items-center gap-1 bg-[#1a1a1a] border border-zinc-700 px-2 py-0.5 rounded text-[10px] text-[#ffa116] font-bold z-10 shadow">
-                      1,608
-                    </div>
-                    <span className="text-[10px] text-zinc-500 font-mono">2026</span>
-                  </div>
-                </div>
-
-                <div className="sm:col-span-5 bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-md">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Top</p>
-                    <p className="text-2xl font-bold text-white mt-0.5">36.35%</p>
-                  </div>
-                  <div className="flex items-end gap-1 h-12 pt-1">
-                    {[20, 35, 45, 80, 100, 65, 40, 30, 20, 15, 10].map((h, i) => (
-                      <div
-                        key={i}
-                        style={{ height: `${h}%` }}
-                        className={`flex-1 rounded-t-xs transition-all ${i === 4 ? "bg-[#ffa116]" : "bg-zinc-700/60"}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2 */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                <div className="sm:col-span-7 bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-md">
-                  <div className="relative w-32 h-32 flex-shrink-0 flex items-center justify-center">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-zinc-800"
-                        strokeWidth="3.2"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        className="text-[#ffa116]"
-                        strokeDasharray={`${Math.min(100, Math.round((totalSolved / 4003) * 100))}, 100`}
-                        strokeWidth="3.2"
-                        strokeLinecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                    </svg>
-
-                    <div className="absolute flex flex-col items-center justify-center text-center">
-                      <span className="text-xl sm:text-2xl font-bold text-white leading-none">
-                        {totalSolved}
-                      </span>
-                      <span className="text-[10px] text-zinc-400 font-medium mt-1 flex items-center gap-0.5">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" /> Solved
-                      </span>
-                      <span className="text-[9px] text-zinc-500 mt-0.5">
-                        21 Attempting
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2.5 w-full">
-                    <div className="bg-[#1f1f1f] px-3 py-2 rounded-lg border border-[#333] flex justify-between items-center">
-                      <span className="text-emerald-400 font-semibold text-xs">Easy</span>
-                      <span className="text-white font-bold text-xs">{easySolved}<span className="text-zinc-500 font-normal">/956</span></span>
-                    </div>
-                    <div className="bg-[#1f1f1f] px-3 py-2 rounded-lg border border-[#333] flex justify-between items-center">
-                      <span className="text-amber-400 font-semibold text-xs">Med.</span>
-                      <span className="text-white font-bold text-xs">{mediumSolved}<span className="text-zinc-500 font-normal">/2091</span></span>
-                    </div>
-                    <div className="bg-[#1f1f1f] px-3 py-2 rounded-lg border border-[#333] flex justify-between items-center">
-                      <span className="text-rose-400 font-semibold text-xs">Hard</span>
-                      <span className="text-white font-bold text-xs">{hardSolved}<span className="text-zinc-500 font-normal">/956</span></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="sm:col-span-5 bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col justify-between gap-4 shadow-md">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Badges</p>
-                      <p className="text-xl font-bold text-white mt-0.5">27</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-zinc-400 cursor-pointer hover:text-white transition-colors" />
-                  </div>
-
-                  <div className="flex items-center justify-around my-1 gap-2">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-400 p-0.5 shadow-md flex-shrink-0 flex items-center justify-center text-[10px] font-extrabold text-black">
-                      500d
-                    </div>
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md flex-shrink-0 flex items-center justify-center text-[10px] font-extrabold text-black">
-                      100d
-                    </div>
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-400 p-0.5 shadow-md flex-shrink-0 flex items-center justify-center text-[10px] font-extrabold text-white">
-                      2026
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-[10px] text-zinc-400">Most Recent Badge</p>
-                    <p className="text-xs font-semibold text-white mt-0.5">500 Days Badge</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3: Fully Green Heatmap separated by Months */}
-              <div className="bg-[#262626] border border-[#333] rounded-xl p-4 sm:p-5 flex flex-col gap-3 shadow-md">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-                    <span className="text-base sm:text-lg font-bold text-white tracking-tight">921</span>
-                    <span className="text-zinc-400 font-medium text-xs">submissions in the past one year</span>
-                    <Info className="w-3.5 h-3.5 text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors" />
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3 text-zinc-400 text-[11px] sm:text-xs">
-                    <div>
-                      Total active days: <span className="text-white font-semibold">365</span>
-                    </div>
-                    <div>
-                      Max streak: <span className="text-white font-semibold">365</span>
-                    </div>
-
-                    <button className="flex items-center gap-1 bg-[#1f1f1f] border border-zinc-700 hover:border-zinc-500 text-zinc-200 px-2.5 py-1 rounded transition-colors cursor-pointer font-medium text-xs">
-                      <span>Current</span>
-                      <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Heatmap Grid Separated by Months */}
-                <div className="w-full overflow-x-auto pb-1 pt-2">
-                  <div className="flex items-start gap-4 min-w-[780px]">
-                    {monthlyData.map((month, monthIdx) => (
-                      <div key={monthIdx} className="flex flex-col items-center gap-2">
-                        
-                        {/* Month Grid (All Boxes Green) */}
-                        <div className="grid grid-flow-col grid-rows-7 gap-1">
-                          {Array.from({ length: month.weeks * 7 }).map((_, boxIdx) => (
-                            <div
-                              key={boxIdx}
-                              className={`w-3 h-3 rounded-[2px] ${getActiveGreenShade(monthIdx * 7 + boxIdx)} transition-all hover:scale-110 hover:ring-1 hover:ring-white/80 cursor-pointer`}
-                            />
-                          ))}
-                        </div>
-
-                        {/* Month Name */}
-                        <span className="text-[11px] text-zinc-400 font-medium hover:text-zinc-200 transition-colors select-none">
-                          {month.name}
-                        </span>
-
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 4: Activity Tabs Bar */}
-              <div className="bg-[#262626] border border-[#333] rounded-xl p-4 flex flex-col gap-4 shadow-md">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#333] pb-3">
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => setActiveTab("recent")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === 'recent' ? 'bg-[#333] text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-[#ffa116]" />
-                      <span>Recent AC</span>
-                    </button>
-                    <button 
-                      onClick={() => setActiveTab("list")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === 'list' ? 'bg-[#333] text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
-                    >
-                      <ListOrdered className="w-3.5 h-3.5" />
-                      <span>List</span>
-                    </button>
-                    <button 
-                      onClick={() => setActiveTab("solutions")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === 'solutions' ? 'bg-[#333] text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Solutions</span>
-                    </button>
-                    <button 
-                      onClick={() => setActiveTab("discuss")}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${activeTab === 'discuss' ? 'bg-[#333] text-white shadow-sm' : 'text-zinc-400 hover:text-zinc-200'}`}
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>Discuss</span>
-                    </button>
-                  </div>
-
-                  <span className="text-zinc-400 text-xs hover:text-white cursor-pointer transition-colors font-medium">
-                    View all submissions &gt;
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  {[
-                    { title: "Two Sum", difficulty: "Easy", time: "1 day ago", lang: "C++" },
-                    { title: "Add Two Numbers", difficulty: "Medium", time: "2 days ago", lang: "C++" },
-                    { title: "Median of Two Sorted Arrays", difficulty: "Hard", time: "3 days ago", lang: "C++" }
-                  ].map((sub, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-[#1f1f1f] border border-[#333] hover:border-zinc-600 transition-colors">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                        <span className="text-zinc-200 font-medium truncate">{sub.title}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-[11px] flex-shrink-0">
-                        <span className={`px-2 py-0.5 rounded font-medium ${sub.difficulty === 'Easy' ? 'text-emerald-400 bg-emerald-950/40' : sub.difficulty === 'Medium' ? 'text-amber-400 bg-amber-950/40' : 'text-rose-400 bg-rose-950/40'}`}>
-                          {sub.difficulty}
-                        </span>
-                        <span className="text-zinc-500 hidden sm:inline">{sub.lang}</span>
-                        <span className="text-zinc-400">{sub.time}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-        )}
-      </main>
 
     </div>
   );

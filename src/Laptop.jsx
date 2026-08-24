@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useReducer, useRef } from "rea
 import { motion, AnimatePresence } from "framer-motion";
 
 import photo from "./assets/wallpaper.jpg";
+import helloSvg from "./assets/hello.svg";
 
 import Topbar from "./components/Topbar";
 import DesktopIcons from "./components/DesktopIcons";
@@ -38,7 +39,7 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
   },
 };
 
@@ -47,17 +48,17 @@ const TopbarVariants = {
   visible: { 
     opacity: 1, 
     y: 0, 
-    transition: { type: "spring", stiffness: 280, damping: 22 } 
+    transition: { type: "spring", stiffness: 220, damping: 24 } 
   },
 };
 
 const widgetVariants = {
-  hidden: { opacity: 0, scale: 0.9, y: 20 },
+  hidden: { opacity: 0, scale: 0.92, y: 15 },
   visible: { 
     opacity: 1, 
     scale: 1, 
     y: 0, 
-    transition: { type: "spring", stiffness: 240, damping: 20 } 
+    transition: { type: "spring", stiffness: 180, damping: 22 } 
   },
 };
 
@@ -65,17 +66,17 @@ const iconVariants = {
   hidden: { opacity: 0 },
   visible: { 
     opacity: 1, 
-    transition: { duration: 0.25, ease: "easeOut" } 
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } 
   },
 };
 
 const dockVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  hidden: { opacity: 0, y: 40, scale: 0.95 },
   visible: { 
     opacity: 1, 
     y: 0, 
     scale: 1, 
-    transition: { type: "spring", stiffness: 220, damping: 18, delay: 0.15 } 
+    transition: { type: "spring", stiffness: 180, damping: 20, delay: 0.1 } 
   },
 };
 
@@ -87,6 +88,7 @@ const profile = {
 
 const Laptop = () => {
   const [booting, setBooting] = useState(true);
+  const [showHello, setShowHello] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
   
   const [windows, dispatch] = useReducer(windowReducer, {});
@@ -126,10 +128,25 @@ const Laptop = () => {
     }
   }, [isDarkMode]);
 
+  // Optimized Sequence Flow: Booting -> Hello -> LockScreen
   useEffect(() => {
-    const timer = setTimeout(() => setBooting(false), 1400);
-    return () => clearTimeout(timer);
+    const bootTimer = setTimeout(() => {
+      setBooting(false);
+      setShowHello(true);
+    }, 1800);
+
+    return () => clearTimeout(bootTimer);
   }, []);
+
+  useEffect(() => {
+    if (showHello) {
+      const helloTimer = setTimeout(() => {
+        setShowHello(false);
+      }, 4200);
+
+      return () => clearTimeout(helloTimer);
+    }
+  }, [showHello]);
 
   const handleUnlock = () => {
     setIsLocked(false);
@@ -170,36 +187,82 @@ const Laptop = () => {
   return (
     <div 
       onClick={handleUserInteraction}
-      className={`relative w-screen h-screen overflow-hidden select-none transition-colors duration-500 ${
+      className={`relative w-screen h-screen overflow-hidden select-none transition-colors duration-700 ${
         isDarkMode ? "bg-black dark" : "bg-zinc-200"
       }`}
     >
       {/* Background Wallpaper */}
       <div 
-        className={`absolute inset-0 bg-cover bg-center transition-all duration-500 ${
+        className={`absolute inset-0 bg-cover bg-center transition-all duration-700 ${
           isDarkMode ? "brightness-90 contrast-105" : "brightness-105"
         }`}
         style={{ backgroundImage: `url(${photo})` }}
       />
 
-      {/* 1. Boot Screen */}
-      <AnimatePresence>
+      {/* 1. Boot Screen Transition */}
+      <AnimatePresence mode="wait">
         {booting && (
-          <div onClick={triggerFullscreen} className="absolute inset-0 z-[9999]">
-            <BootScreen key="boot" />
-          </div>
+          <motion.div 
+            key="boot"
+            onClick={triggerFullscreen} 
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 z-[9999]"
+          >
+            <BootScreen />
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 2. Lock Screen */}
-      <AnimatePresence>
-        {!booting && isLocked && (
-          <LockScreen key="lock" profile={profile} onUnlock={handleUnlock} />
+      {/* 2. Fluid Hello Animation Overlay */}
+      <AnimatePresence mode="wait">
+        {!booting && showHello && (
+          <motion.div
+            key="hello-screen"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ 
+              opacity: 1, 
+              backdropFilter: "blur(24px)",
+              transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] } 
+            }}
+            exit={{ 
+              opacity: 0, 
+              backdropFilter: "blur(0px)",
+              transition: { duration: 1.0, ease: [0.16, 1, 0.3, 1] } 
+            }}
+            className="absolute inset-0 z-[9998] flex items-center justify-center bg-white/10 dark:bg-black/25 backdrop-saturate-150 border border-white/20 shadow-2xl"
+          >
+            <motion.img 
+              initial={{ opacity: 0, scale: 0.94, y: 10 }}
+              animate={{ opacity: 0.95, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 1.04, y: -10 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              src={helloSvg} 
+              alt="Hello" 
+              className="w-[32rem] max-w-[85vw] h-auto drop-shadow-[0_12px_32px_rgba(0,0,0,0.35)] select-none pointer-events-none" 
+            />
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* 3. Main Desktop Environment */}
-      {!booting && !isLocked && (
+      {/* 3. Lock Screen Transition */}
+      <AnimatePresence mode="wait">
+        {!booting && !showHello && isLocked && (
+          <motion.div
+            key="lock"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 z-40"
+          >
+            <LockScreen profile={profile} onUnlock={handleUnlock} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 4. Main Desktop Environment */}
+      {!booting && !showHello && !isLocked && (
         <motion.div
           key="desktop-environment"
           variants={containerVariants}
