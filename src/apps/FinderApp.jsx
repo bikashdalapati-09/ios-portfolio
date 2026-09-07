@@ -148,7 +148,7 @@ const FILE_DATABASE = [
   { id: "sh-1", name: "Team_UI_Assets", fullName: "Team_UI_Assets", category: "shared", type: "Shared Folder", size: "--", iconType: "folder", description: "Shared team drive containing high-resolution graphics, logos, and UI component exports." },
 
   // ==================== 8. MAC LOCATION ====================
-  { id: "mac-1", name: "Tom HD", fullName: "Tom HD", category: "tommac", type: "Internal Volume", size: "512 GB", iconType: "folder", description: "Primary internal solid-state drive root partition." },
+  { id: "mac-1", name: "Bikash HD", fullName: "Bikash HD", category: "tommac", type: "Internal Volume", size: "512 GB", iconType: "folder", description: "Primary internal solid-state drive root partition." },
   { id: "mac-2", name: "Users", fullName: "Users", category: "tommac", type: "System Directory", size: "128 GB", iconType: "folder", description: "User profiles directory containing workspace files." },
 
   // ==================== 9. HARD DRIVE ====================
@@ -185,8 +185,8 @@ const SIDEBAR_SECTIONS = [
   {
     title: "LOCATIONS",
     items: [
-      { id: "tommac", label: "Tom's Mac", icon: FaLaptop },
-      { id: "harddrive", label: "Tom HD", icon: FaHdd },
+      { id: "tommac", label: "Bikash's Mac", icon: FaLaptop },
+      { id: "harddrive", label: "Bikash HD", icon: FaHdd },
       { id: "bin", label: "Bin", icon: FaTrash },
       { id: "network", label: "Network", icon: FaNetworkWired },
     ],
@@ -228,8 +228,8 @@ export default function FinderApp({ initialCategory = "recents" }) {
 
   // Dynamic header title helper
   const getHeaderTitle = (category) => {
-    if (category === "tommac") return "Tom's Mac";
-    if (category === "harddrive") return "Tom HD";
+    if (category === "tommac") return "Bikash's Mac";
+    if (category === "harddrive") return "Bikash HD";
     if (category === "bin") return "Bin";
     return category;
   };
