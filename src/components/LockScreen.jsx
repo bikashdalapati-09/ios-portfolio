@@ -168,7 +168,7 @@ export default function LockScreen({ profile, onUnlock }) {
 
                 {/* Helper Text */}
                 <p className={`text-[11px] transition-colors ${error ? "text-red-400 font-medium" : "text-white/60"}`}>
-                  {error ? "Please enter valid year to unlock" : '" Hint: Enter any 4 digit to unlock "'}
+                  {error ? "Please enter 4 digits to unlock" : '" Hint: Enter any 4 digit to unlock "'}
                 </p>
               </form>
 
