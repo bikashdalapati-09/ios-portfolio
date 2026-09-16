@@ -21,7 +21,8 @@ import {
   FaRegFileAlt,
   FaFolderPlus,
   FaCheckCircle,
-  FaUtensils
+  FaUtensils,
+  FaRobot
 } from "react-icons/fa";
 
 // Project images
@@ -29,6 +30,7 @@ import chatAppImg from "../assets/chatapp.jpeg";
 import interviewImg from "../assets/interview-agent.png";
 import portfolioImg from "../assets/portfolio.png";
 import restaurantImg from "../assets/restaurant.png"
+import webmateImg from "../assets/webmateImg.png"
 
 // =========================================================================
 // NESTED ICLOUD DATA MODEL
@@ -42,14 +44,80 @@ const ICLOUD_FILES_DATA = [
     id: "folder-projects",
     type: "folder",
     name: "Projects",
-    itemCount: 5,
+    itemCount: 6,
 
     children: [
+      {
+    id: "proj-1",
+    type: "project",
+    categoryId: "genai",
+    categoryName: "GenAI & Full Stack",
+    name: "WebMate AI",
+    icon: <FaRobot className="text-sm" />,
+    imageUrl: webmateImg,
+
+    description:
+      "A no-code AI SaaS platform designed to embed custom, intelligent AI agents directly into websites. Powered by Google Gemini, LangChain, and RAG pipelines, it enables businesses to build automated 24/7 support agents trained on custom PDF documentation with accurate semantic search, vector embeddings, and multi-step agent workflows.",
+
+    overview:
+      "WebMate AI is a full-stack SaaS platform that allows users to create, customize, and integrate custom AI chat agents into any website using a single JavaScript snippet. It combines RAG-based document retrieval with Gemini LLM orchestration to deliver context-aware responses and site navigation.",
+
+    features: [
+      "4-step AI agent configuration wizard (persona, theme, rules, routes)",
+      "RAG document processing backend for custom PDF knowledge bases",
+      "Vector embedding and semantic search query handling",
+      "One-line JavaScript integration script for multi-platform support",
+      "Live chat widget preview with customizable brand styling",
+      "Google Single Sign-On (SSO) & secure user authentication",
+      "Subscription plan management with message limits and analytics",
+      "Responsive glassmorphic UI layout with dark/light themes",
+    ],
+
+    technicalDetails: [
+      "React 19 frontend built with TypeScript and Tailwind CSS",
+      "Node.js and Express.js REST API server",
+      "MongoDB for persistent user accounts, agents, and logs",
+      "LangChain & LangGraph for AI agent workflow orchestration",
+      "Google Gemini SDK (@google/genai) for LLM reasoning & embeddings",
+      "PDF parsing engine for document text extraction",
+      "JWT and Google SSO authentication",
+    ],
+
+    techStack: {
+      Frontend: ["React 19", "TypeScript", "Tailwind CSS", "Framer Motion"],
+      Backend: ["Node.js", "Express.js"],
+      AI: ["Google Gemini API", "Vector Embeddings", "RAG Pipeline", "LangChain", "LangGraph"],
+      Database: ["MongoDB"],
+      Authentication: ["Google SSO", "JWT"],
+    },
+
+    projectPurpose:
+      "The primary purpose of WebMate AI is to simplify website automation by letting non-technical users build, train, and deploy RAG-powered AI customer service agents in minutes using Google Gemini and modern MERN architecture.",
+
+    tags: [
+      "React.js",
+      "TypeScript",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "Google Gemini",
+      "LangChain",
+      "RAG",
+      "Tailwind CSS",
+    ],
+
+    githubUrl: "https://github.com/bikashdalapati-09/webmate-ai",
+    liveUrl: "https://webmate-ai-hepn.onrender.com",
+
+    featured: true,
+    date: "Sep 26",
+    size: "AI SaaS",
+  },
       // ===================================================================
       // 1. AI INTERVIEW AGENT
       // ===================================================================
       {
-        id: "proj-1",
+        id: "proj-2",
         type: "project",
         categoryId: "mern",
         categoryName: "MERN Stack",
@@ -128,7 +196,7 @@ const ICLOUD_FILES_DATA = [
       },
 
       {
-        id: "proj-2",
+        id: "proj-3",
         type: "project",
         categoryId: "genai",
         categoryName: "GenAI & Full Stack",
@@ -211,7 +279,7 @@ const ICLOUD_FILES_DATA = [
         size: "GenAI Stack",
       },
       {
-        id: "proj-3",
+        id: "proj-4",
         type: "project",
         categoryId: "mern",
         categoryName: "MERN Stack",
@@ -293,7 +361,7 @@ const ICLOUD_FILES_DATA = [
       },
 
       {
-        id: "proj-4",
+        id: "proj-5",
         type: "project",
         categoryId: "system",
         categoryName: "System & UI",
@@ -366,7 +434,7 @@ const ICLOUD_FILES_DATA = [
         size: "React UI",
       },
        {
-        id: "proj-5",
+        id: "proj-6",
         type: "project",
         categoryId: "mern",
         categoryName: "MERN Stack",
