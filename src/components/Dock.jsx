@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import linkedinIcon from '../assets/icons/linkedin.svg'
+import githubIcon from '../assets/icons/github.svg'
+import appstorelogo from '../assets/icons/appstore.svg'
+import vscodelogo from '../assets/icons/vscode.svg'
 
 export default function Dock({ onOpenCalculator,onOpenBin, onOpenFinder, onOpenImessage, onOpenSpotify, onOpenSetting, onOpenNetflix, onOpenNodepad, onOpenPhoto, onOpenMap, onOpenVscode, onOpenWeather, onOpenGithub, onOpenTerminal,onOpenLinkedIn, onOpenCalendar, onOpenSafari, onOpenYouTube }) {
   const mouseX = useMotionValue(Infinity);
@@ -94,7 +98,7 @@ export default function Dock({ onOpenCalculator,onOpenBin, onOpenFinder, onOpenI
         <div className="scale-110">
           <DockItem
             name="GitHub"
-            icon="https://cdn.pixabay.com/photo/2022/01/30/13/33/github-6980894_960_720.png"
+            icon={githubIcon}
             mouseX={mouseX}
             onClick={onOpenGithub}
           />
@@ -104,9 +108,10 @@ export default function Dock({ onOpenCalculator,onOpenBin, onOpenFinder, onOpenI
         <div>
           <DockItem
             name="LinkedIn"
-            icon="https://api.iconify.design/devicon:linkedin.svg"
+            icon={linkedinIcon}
             mouseX={mouseX}
             onClick={onOpenLinkedIn}
+           
           />
         </div>
 
@@ -114,7 +119,7 @@ export default function Dock({ onOpenCalculator,onOpenBin, onOpenFinder, onOpenI
         <div>
           <DockItem
             name="App Store"
-            icon="https://api.iconify.design/logos:apple-app-store.svg"
+            icon={appstorelogo}
             mouseX={mouseX}
           />
         </div>
@@ -123,7 +128,7 @@ export default function Dock({ onOpenCalculator,onOpenBin, onOpenFinder, onOpenI
         <div>
           <DockItem
             name="VS Code"
-            icon="https://api.iconify.design/logos:visual-studio-code.svg"
+            icon={vscodelogo}
             mouseX={mouseX}
             onClick={onOpenVscode}
           />
