@@ -93,8 +93,8 @@ export default function LeetCodeApp() {
   const easySolved = stats?.easySolved ?? 428;
   const mediumSolved = stats?.mediumSolved ?? 429;
   const hardSolved = stats?.hardSolved ?? 126;
-  const totalSolved = stats?.totalSolved ?? (easySolved + mediumSolved + hardSolved);
-  const ranking = stats?.ranking ?? "34,364";
+  const totalSolved = stats?.totalSolved ?? 1100;
+  const ranking = stats?.ranking ?? "10,000";
 
   const easyTotal = 824;
   const mediumTotal = 1735;
