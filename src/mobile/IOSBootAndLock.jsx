@@ -184,12 +184,12 @@ export default function IosBootAndLock({ onUnlock }) {
     if (!isFaceIdActive) return;
 
     if (videoRef.current) {
-      videoRef.current.playbackRate = 1.8;
+      videoRef.current.playbackRate = 2.2;
     }
 
     const faceIdTimer = setTimeout(() => {
       handleFaceIdEnd();
-    }, 1200);
+    }, 2200);
 
     return () => clearTimeout(faceIdTimer);
   }, [isFaceIdActive]);
